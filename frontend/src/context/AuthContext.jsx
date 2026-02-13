@@ -21,8 +21,17 @@ const AuthContextProvider = ({children}) => {
     
 //fetch all products data
 const fetchProducts=async()=>{
-    setProducts(dummyProducts);
+    try{
+        const{data} = await axios.get("/api/product/list");
+        if(data.success){
+        setProducts(data.products);
+    }else{
+        toast.error(data.message);
+    }
+}catch(error){
+    toast.error(error.message);
 };
+}   
 //add product to cart
 const addToCart=(itemId) => {
     let cartData = structuredClone(cartItems);

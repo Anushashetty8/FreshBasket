@@ -16,7 +16,20 @@ const AuthContextProvider = ({children}) => {
     const [cartItems, setCartItems] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     
-    
+    //check seller status
+    const fetchSeller = async () =>{
+    try{
+        const {data} = await axios.get("/api/seller/is-auth");
+        if(data.success){
+            setIsSeller(true);
+        }else{
+            setIsSeller(false);
+
+        }
+    }catch(error){
+        toast.error(error.message);
+    }       
+};
 
     
 //fetch all products data
@@ -86,6 +99,7 @@ const removeFromCart = (itemId) => {
 };
 useEffect(()=>{
     fetchProducts();
+    fetchSeller();
 },[]);
     const value ={
         navigate, 
@@ -105,6 +119,7 @@ useEffect(()=>{
         searchQuery,
         setSearchQuery,
         axios,
+        fetchProducts,
     };
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

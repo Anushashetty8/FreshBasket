@@ -27,10 +27,26 @@ const AuthContextProvider = ({children}) => {
 
         }
     }catch(error){
-        toast.error(error.message);
+        setIsSeller(false);
     }       
 };
+//check user status
+const fetchUser = async() =>{
+    try{
+        const {data} = await axios.get("/api/user/is-auth");
+        if(data.success){
+            setUser(data.user);
+            setCartItems(data.user.cart);
 
+        }else{
+            setCartItems({});
+        }
+
+    }catch(error){
+        setCartItems({});
+    }
+    
+};
     
 //fetch all products data
 const fetchProducts=async()=>{
@@ -100,6 +116,7 @@ const removeFromCart = (itemId) => {
 useEffect(()=>{
     fetchProducts();
     fetchSeller();
+    fetchUser();
 },[]);
     const value ={
         navigate, 

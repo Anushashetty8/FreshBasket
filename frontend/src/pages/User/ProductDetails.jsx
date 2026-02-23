@@ -28,15 +28,15 @@ useEffect(() => {
                 <div className="flex gap-3">
                     <div className="flex flex-col gap-3">
                         {product.image.map((image, index) => (
-                            <div key={index} onClick={() => setThumbnail(image)}
+                            <div key={index} onClick={() => setThumbnail(`http://localhost:5000/images/${image}`)}
                              className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer" >
-                                <img src={image} alt={`Thumbnail ${index + 1}`} />
+                                <img src={`http://localhost:5000/images/${product.image[0]}`} alt={`Thumbnail ${index + 1}`} />
                             </div>
                         ))}
                     </div>
 
                     <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
-                        <img src={thumbnail} alt="Selected product"
+                        <img src={`http://localhost:5000/images/${thumbnail}`} alt="Selected product"
                          className="w-full h-full object-cover" />
                     </div>
                 </div>

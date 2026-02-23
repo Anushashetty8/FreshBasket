@@ -1,19 +1,37 @@
 import { useContext, useState } from "react";
 import React from "react";
 import { AuthContext } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 const Login = () => {
     const [state, setState] = React.useState("login");
     const [name, setName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = useState("");
-    const {setShowUserLogin, setUser} = useContext(AuthContext);
+    const {setShowUserLogin, setUser, axios, navigate} = useContext(AuthContext);
 
     const submitHandler = async(e)=>{
-        e.preventDefault();
-        console.log('name', name,'email' ,email,"password" ,password);
+        try{
+            e.preventDefault();
+            const {data} = await axios.post(`/api/user/register`,{
+                name,
+                email,
+                password,
+            });
+            console.log("data", data);
+            if(data.success){
+                toast .success(data.message);
+                navigate("/");
+                setUser(data.user);
+                setShowUserLogin(false);
+            }else{
+                toast.error(data.message);
+            }
+       
+    }catch(error){
+        toast.error("An error occurred during login/signup.");
+    }
     };
-
-    return (
+    return (    
         <div onClick={()=>setShowUserLogin(false)} className="fixed top-0 bottom-0 left-0 right-0 z-40 flex items-center justify-center bg-black/50 text-gray-600">
         <form onClick={(e)=>e.stopPropagation()} onSubmit={submitHandler} className="flex flex-col gap-4 m-auto items-start p-8 py-12 w-80 sm:w-[352px] text-gray-500 rounded-lg shadow-xl border border-gray-200 bg-white">
             <p className="text-2xl font-medium m-auto">
@@ -42,9 +60,7 @@ const Login = () => {
                     Create an account? <span onClick={() => setState("register")} className="text-indigo-500 cursor-pointer">click here</span>
                 </p>
             )}
-            <button onClick={()=> {setUser(true);
-                setShowUserLogin(false);
-            }} className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white w-full py-2 rounded-md cursor-pointer">
+            <button className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white w-full py-2 rounded-md cursor-pointer">
                 {state === "register" ? "Create Account" : "Login"}
             </button>
         </form>

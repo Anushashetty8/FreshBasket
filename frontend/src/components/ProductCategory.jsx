@@ -6,13 +6,20 @@ import ProductCard from "./ProductCard";
 const ProductCategory = () => {
   const { products, navigate } = useContext(AuthContext);
   const { category } = useParams();
+  console.log("category URL:", category);
   const searchCategory = categories.find(
-    (item) => item.path.toLowerCase() === category
+    (item) => item.path.toLowerCase() === category.toLowerCase()
+
   );
 
-  const filteredProducts = products.filter(
-    (product) => product.category.toLowerCase() ===category
+const filteredProducts = products.filter((product) => {
+  return (
+    product.category &&
+    product.category.toLowerCase() ===
+      category?.toLowerCase()
   );
+});
+
   return (
     <div className="mt-16">
       {searchCategory && (

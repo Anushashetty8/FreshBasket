@@ -12,24 +12,34 @@ const Login = () => {
     const submitHandler = async(e)=>{
         try{
             e.preventDefault();
-            const {data} = await axios.post(`/api/user/register`,{
-                name,
-                email,
-                password,
-            });
+            
+            if(state === "register"){
+                if(!name || !email || !password){
+                    toast.error("All fields are required");
+                    return;
+                }
+            }
+            
+            const endpoint = state === "login" ? "/api/user/login" : "/api/user/register";
+            const payload = state === "login" 
+                ? {email, password} 
+                : {name, email, password};
+                
+            const {data} = await axios.post(endpoint, payload);
+            
             console.log("data", data);
             if(data.success){
-                toast .success(data.message);
-                navigate("/");
+                toast.success(data.message);
                 setUser(data.user);
                 setShowUserLogin(false);
+                navigate("/");
             }else{
                 toast.error(data.message);
             }
        
-    }catch(error){
-        toast.error("An error occurred during login/signup.");
-    }
+        }catch(error){
+            toast.error(error.response?.data?.message || "An error occurred during login/signup.");
+        }
     };
     return (    
         <div onClick={()=>setShowUserLogin(false)} className="fixed top-0 bottom-0 left-0 right-0 z-40 flex items-center justify-center bg-black/50 text-gray-600">

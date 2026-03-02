@@ -36,7 +36,7 @@ const fetchUser = async() =>{
         const {data} = await axios.get("/api/user/is-auth");
         if(data.success){
             setUser(data.user);
-            setCartItems(data.user.cart);
+            setCartItems(data.user.cart || data.user.cartData || {});
 
         }else{
             setCartItems({});
@@ -49,21 +49,22 @@ const fetchUser = async() =>{
 };
     
 //fetch all products data
-const fetchProducts=async()=>{
-    try{
-        const{data} = await axios.get("/api/product/list");
-        if(data.success){
+const fetchProducts = async () => {
+    try {
+      const { data } = await axios.get("/api/product/list");
+      if (data.success) {
         setProducts(data.products);
-    }else{
+      } else {
         toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
-}catch(error){
-    toast.error(error.message);
-};
-}   
+
+}   ;
 //add product to cart
 const addToCart=(itemId) => {
-    let cartData = structuredClone(cartItems);
+    let cartData = structuredClone(cartItems) || {};
     if (cartData[itemId]) {
         cartData[itemId] += 1;
     
@@ -75,7 +76,7 @@ const addToCart=(itemId) => {
 };
 //update cart item quantity
 const updateCartItem = (itemId,quantity) =>{
-    let cartData = structuredClone(cartItems);
+    let cartData = structuredClone(cartItems) || {};
     cartData[itemId] = quantity;
     setCartItems(cartData);
     toast.success("cart updated");
@@ -103,7 +104,7 @@ const totalCartAmount = () => {
 };
 //remove product from cart
 const removeFromCart = (itemId) => {
-    let cartData = structuredClone(cartItems);
+    let cartData = structuredClone(cartItems) || {};
     if(cartData[itemId]) {
         cartData[itemId] -=1;
         if(cartData[itemId] ===0){
@@ -113,6 +114,22 @@ const removeFromCart = (itemId) => {
         setCartItems(cartData);
     }
 };
+useEffect(()=>{
+    const updateCart = async() =>{
+        try{
+        const{data } = await axios.post("/api/cart/update",{cartItems});
+        if(!data.success){
+            toast.error(data.message);
+        }
+    }catch (error){
+        toast.error(error.message);
+    }
+    
+    };
+    if(user){
+        updateCart();
+    }
+},[cartItems]);
 useEffect(()=>{
     fetchProducts();
     fetchSeller();
@@ -137,6 +154,7 @@ useEffect(()=>{
         setSearchQuery,
         axios,
         fetchProducts,
+        setCartItems,
     };
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

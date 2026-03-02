@@ -24,7 +24,7 @@ export const addAddress = async(req, res) =>{
 export const getAddress = async(req, res)=>{
     try{
     const userId = req.user;
-        const addresses = (await Address.find({userId})).toSorted({createdAt: -1})
+        const addresses = await Address.find({userId}).sort({createdAt: -1});
         res.status(200).json({
             success: true,
             addresses,

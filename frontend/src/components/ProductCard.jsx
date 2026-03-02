@@ -17,7 +17,7 @@ const ProductCard = ({ product }) => {
         <div className="group cursor-pointer flex items-center justify-center px-2">
           <img
             className="group-hover:scale-105 transition max-w-26 md:max-w-36"
-            src={`http://localhost:5000/images/${product.image[0]}`}
+            src={`${import.meta.env.VITE_BACKEND_URL}/images/${product.image?.[0]}`}
             alt={product.name}
           />
         </div>
@@ -45,7 +45,7 @@ const ProductCard = ({ product }) => {
               </span>
             </p>
             <div className="text-indigo-500" onClick={(e) => e.stopPropagation()}>
-              {!cartItems[product._id] ? (
+              {!cartItems?.[product._id] ? (
                 <button
                   className="flex items-center justify-center gap-1 bg-indigo-100 border border-indigo-300 md:w-[80px] w-[64px] h-[34px] rounded text-indigo-600 font-medium"
                   onClick={() => addToCart(product._id)}

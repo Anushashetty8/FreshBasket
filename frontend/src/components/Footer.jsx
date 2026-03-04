@@ -18,8 +18,8 @@ const Footer = () => {
         <div className=" py-16 px-6 md:px-16 lg:px-24 xl:px-32">
             <div className="flex flex-col md:flex-row items-start justify-between gap-10 py-10 border-b border-gray-500/30 text-gray-500">
                 <div>
-                    <h2 className="font-semibold text-2xl md-text-3xl text-gray-900">
-                        Grocery App
+                    <h2 className="font-semibold text-2xl md:text-3xl text-gray-900">
+                        FreshBasket
                     </h2>
                     <p className="text-sm md:text-base mt-2">
                         Lorem ipsum dolor sit amet consectetur adipisicing elit. Est expedita ducimus distinctio repudiandae officia quod sint maiores, tempora veniam cupiditate minima dolorem doloribus libero, magnam ratione dolore corporis provident quo.

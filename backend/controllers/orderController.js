@@ -45,7 +45,7 @@ for (const item of items) {
   }
 };
 
-// oredr details for individual user :/api/order/user
+// order details for individual user :/api/order/user
 export const getUserOrders = async (req, res) => {
   try {
     const userId = req.user;
@@ -65,7 +65,7 @@ export const getUserOrders = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find({
-      $or: [{ paymentType: "COD" }, { isPaid: true }],
+      $or: [{ paymentType: "COD" }, { isPaid: false }],
     })
       .populate("items.product address")
       .sort({ createdAt: -1 });

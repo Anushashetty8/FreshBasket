@@ -18,6 +18,23 @@ const MyOrders = () => {
       toast.error(error.message);
     }
   };
+//add cancel order functionality
+  const cancelOrder = async (orderId) => {
+    try {
+      if (!window.confirm("Are you sure you want to cancel this order?")) 
+        return;
+    
+      const { data } = await axios.post("/api/order/cancel", { orderId });
+      if (data.success) {
+        toast.success(data.message);
+        fetchOrders(); // Refresh the order list
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -30,7 +47,9 @@ const MyOrders = () => {
         <p className="text-2xl md:text-3xl font-medium">My Orders</p>
       </div>
 
-      {myOrders.map((order, index) => (
+      {myOrders.map((order, index) => {
+
+      return (
         <div
           key={index}
           className="my-8 border border-gray-300 rounded-lg mb-10 p-4 py-5 max-w-4xl"
@@ -64,16 +83,35 @@ const MyOrders = () => {
 
               <div className=" text-lg font-medium">
                 <p>Quantity:{item.quantity || "1"}</p>
-                <p>Status:{order.status}</p>
+                <p
+  className={`${
+    order.status?.toLowerCase() === "order placed"
+      ? "text-yellow-500"
+      : order.status?.toLowerCase() === "cancelled"
+      ? "text-red-500"
+      : "text-green-500"
+  }`}
+>
+  Status: {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+</p>
                 <p>Date:{new Date(order.createdAt).toLocaleString()}</p>
               </div>
               <p className=" text-lg">
                 Amount:${item.product.offerPrice * item.quantity}
               </p>
+                         {order.status?.toLowerCase() === "order placed" && (
+  <button
+    onClick={() => cancelOrder(order._id)}
+    className="bg-red-500 text-white px-4 py-1 rounded-md mt-2 hover:bg-red-600"
+  >
+    Cancel Order
+  </button>
+)}
             </div>
           ))}
         </div>
-      ))}
+      );
+      })}
     </div>
   );
 };

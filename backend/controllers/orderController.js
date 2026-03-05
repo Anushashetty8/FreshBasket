@@ -35,6 +35,7 @@ for (const item of items) {
       amount,
       paymentType: "COD",
       isPaid: false,
+      status: "Order Placed",
     });
     res
       .status(201)
@@ -72,5 +73,23 @@ export const getAllOrders = async (req, res) => {
     res.status(200).json({ success: true, orders });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+ //cancel order :/api/order/cancel/
+export const cancelOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    if (order.status?.toLowerCase() !== "order placed")
+      return res.status(400).json({ success: false, message: "Order cannot be cancelled" });
+
+    order.status = "Cancelled";
+    await order.save();
+
+    res.status(200).json({ success: true, message: "Order cancelled successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

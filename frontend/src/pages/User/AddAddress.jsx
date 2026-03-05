@@ -16,14 +16,69 @@ const AddAddress = () => {
     country: "",
     phone: "",
   });
+  const [errors, setErrors] = useState({});
 const {axios,user, navigate} = useContext(AuthContext);
   const handleChange = (e) => {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
 
   const submitHanlder = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    // Validate all fields
+    if (!address.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(address.firstName)) {
+      newErrors.firstName = "First name can only contain letters";
+    }
+    if (!address.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(address.lastName)) {
+      newErrors.lastName = "Last name can only contain letters";
+    }
+    if (!address.street.trim()) {
+      newErrors.street = "Street is required";
+    }
+    if (!address.city.trim()) {
+      newErrors.city = "City is required";
+    }
+    if (!address.state.trim()) {
+      newErrors.state = "State is required";
+    }
+    if (!address.country.trim()) {
+      newErrors.country = "Country is required";
+    }
+
+    // Email validation
+    if (!address.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Phone validation (10 digits)
+    if (!address.phone.trim()) {
+      newErrors.phone = "Phone is required";
+    } else if (!/^\d{10}$/.test(address.phone.toString())) {
+      newErrors.phone = "Phone must be exactly 10 digits";
+    }
+
+    // Zipcode validation (5 or 6 digits)
+    if (!address.zipCode.trim()) {
+      newErrors.zipCode = "Zipcode is required";
+    } else if (!/^\d{5,6}$/.test(address.zipCode.toString())) {
+      newErrors.zipCode = "Zipcode must be 5 or 6 digits";
+    }
+
+    setErrors(newErrors);
+
+    // Prevent submission if there are errors
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     try{
-      e.preventDefault();
       const{data}=await axios.post("/api/address/add",{address});
       if(data.success){
         toast.success(data.message);
@@ -59,9 +114,10 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="firstName"
               value={address.firstName}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
           </div>
 
           <div>
@@ -71,9 +127,10 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="lastName"
               value={address.lastName}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
           </div>
 
           <div className="col-span-2">
@@ -83,9 +140,10 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="email"
               value={address.email}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
           </div>
 
           <div className="col-span-2">
@@ -95,9 +153,10 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="street"
               value={address.street}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.street ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.street && <p className="text-red-500 text-sm mt-1">{errors.street}</p>}
           </div>
 
           <div>
@@ -107,9 +166,10 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="city"
               value={address.city}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
           </div>
 
           <div>
@@ -119,21 +179,23 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="state"
               value={address.state}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
           </div>
 
           <div>
             <label className="block text-gray-600">Zip Code</label>
             <input
-              type="number"
+              type="text"
               name="zipCode"
               value={address.zipCode}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.zipCode ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.zipCode && <p className="text-red-500 text-sm mt-1">{errors.zipCode}</p>}
           </div>
 
           <div>
@@ -143,21 +205,23 @@ const {axios,user, navigate} = useContext(AuthContext);
               name="country"
               value={address.country}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
           </div>
 
           <div className="col-span-2">
             <label className="block text-gray-600">Phone</label>
             <input
-              type="number"
+              type="text"
               name="phone"
               value={address.phone}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md"
+              className={`w-full p-2 border rounded-md ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
               required
             />
+            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
           </div>
 
           <div className="col-span-2">

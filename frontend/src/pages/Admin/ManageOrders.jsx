@@ -18,6 +18,23 @@ const ManageOrders = () => {
       toast.error(error.message);
     }
   };
+  const updateStatus = async (orderId, status) => {
+  try {
+    const { data } = await axios.post("/api/order/update-status", {
+      orderId,
+      status,
+    });
+
+    if (data.success) {
+      toast.success("Order status updated");
+      fetchOrders();
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -77,6 +94,16 @@ const ManageOrders = () => {
             <p>Method: {order?.paymentType || "N/A"}</p>
             <p>Date: {order?.orderDate || "N/A"}</p>
             <p>Payment: {order?.isPaid ? "Paid" : "Pending"}</p>
+            {/* Order Status Update */}
+  <select
+    value={order.status}
+    onChange={(e) => updateStatus(order._id, e.target.value)}
+    className="border mt-2 p-1 rounded"
+  >
+    <option value="order placed">Order Placed</option>
+    <option value="shipped">Shipped</option>
+    <option value="delivered">Delivered</option>
+  </select>
           </div>
         </div>
         );

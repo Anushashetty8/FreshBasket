@@ -84,16 +84,60 @@ const MyOrders = () => {
               <div className=" text-lg font-medium">
                 <p>Quantity:{item.quantity || "1"}</p>
                 <p
-  className={`${
+  className={`font-semibold ${
     order.status?.toLowerCase() === "order placed"
       ? "text-yellow-500"
+      : order.status?.toLowerCase() === "shipped"
+      ? "text-blue-500"
+      : order.status?.toLowerCase() === "delivered"
+      ? "text-green-600"
       : order.status?.toLowerCase() === "cancelled"
       ? "text-red-500"
-      : "text-green-500"
+      : "text-gray-500"
   }`}
 >
-  Status: {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+  Status: {order.status}
 </p>
+<div className="flex items-center gap-4 mt-3 text-sm">
+
+{/* Order Placed */}
+<div className="flex items-center gap-1">
+  <div className={`w-4 h-4 rounded-full ${
+    order.status === "order placed" ||
+    order.status === "shipped" ||
+    order.status === "delivered"
+      ? "bg-green-500"
+      : "bg-gray-300"
+  }`}></div>
+  <p>Placed</p>
+</div>
+
+<div className="flex-1 h-[2px] bg-gray-300"></div>
+
+{/* Shipped */}
+<div className="flex items-center gap-1">
+  <div className={`w-4 h-4 rounded-full ${
+    order.status === "shipped" ||
+    order.status === "delivered"
+      ? "bg-green-500"
+      : "bg-gray-300"
+  }`}></div>
+  <p>Shipped</p>
+</div>
+
+<div className="flex-1 h-[2px] bg-gray-300"></div>
+
+{/* Delivered */}
+<div className="flex items-center gap-1">
+  <div className={`w-4 h-4 rounded-full ${
+    order.status === "delivered"
+      ? "bg-green-500"
+      : "bg-gray-300"
+  }`}></div>
+  <p>Delivered</p>
+</div>
+
+</div>
                 <p>Date:{new Date(order.createdAt).toLocaleString()}</p>
               </div>
               <p className=" text-lg">

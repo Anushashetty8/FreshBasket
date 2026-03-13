@@ -59,7 +59,10 @@ const MyOrders = () => {
             <span>payment :{order.paymentType} </span>
             <span>Total Amount :${order.amount} </span>
           </p>
-          {order.items.map((item, index) => (
+        {order.items.map((item, index) => {
+  if (!item.product) return null;
+
+  return (
             <div
               key={index}
               className={`relative bg-white text-gray-800/70 ${
@@ -68,15 +71,22 @@ const MyOrders = () => {
             >
               <div className="flex items-center mb-4 md:mb-0">
                 <div className="p-4 rounded-lg">
-                  <img
-                    src={`http://localhost:5000/images/${item.product.image[0]}`}
-                    alt=""
-                    className="w-16 h-16"
-                  />
+                 <img
+  src={
+    item.product?.image?.[0]
+      ? `http://localhost:5000/images/${item.product.image[0]}`
+      : "/placeholder.png"
+  }
+  alt={item.product?.name || "product"}
+  className="w-16 h-16"
+/>
                 </div>
 
                 <div className="ml-4">
-                  <h2 className="text-xl font-medium">{item.product.name}</h2>
+             
+
+             <h2 className="text-xl font-medium">{item.product?.name}</h2>
+<p>{item.product?.category}</p>
                   <p>{item.product.category}</p>
                 </div>
               </div>
@@ -141,7 +151,8 @@ const MyOrders = () => {
                 <p>Date:{new Date(order.createdAt).toLocaleString()}</p>
               </div>
               <p className=" text-lg">
-                Amount:${item.product.offerPrice * item.quantity}
+            
+            Amount:${(item.product?.offerPrice || 0) * item.quantity}
               </p>
                          {order.status?.toLowerCase() === "order placed" && (
   <button
@@ -152,7 +163,8 @@ const MyOrders = () => {
   </button>
 )}
             </div>
-          ))}
+          );
+       } )}
         </div>
       );
       })}

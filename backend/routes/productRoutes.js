@@ -6,10 +6,12 @@ import{
     changeStock,
     getProductById,
     getProducts,
+    deleteProduct,
 }from "../controllers/productController.js"
 const router = express.Router();
 router.post("/add-product",authSeller, upload.array("image"),addProduct);
 router.get("/list",getProducts);
 router.get("/id",getProductById);
 router.post("/stock",authSeller,changeStock);
+router.delete("/:id", deleteProduct);
 export default router;

@@ -85,11 +85,9 @@ const ManageOrders = () => {
               {order?.address?.country}
             </p>
           </div>
-
-          <p className="font-medium text-base my-auto text-black/70">
-            ${order?.amount || 0}
-          </p>
-
+<p className="font-medium text-base my-auto text-black/70">
+  ₹{(order?.amount || 0).toLocaleString("en-IN")}
+</p>
           <div className="flex flex-col text-sm">
             <p>Method: {order?.paymentType || "N/A"}</p>
             <p>Date: {order?.orderDate || "N/A"}</p>

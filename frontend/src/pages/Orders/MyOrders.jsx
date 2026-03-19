@@ -57,7 +57,9 @@ const MyOrders = () => {
           <p className="flex justify-between items-center gap-6 ">
             <span>orderId :{order._id} </span>
             <span>payment :{order.paymentType} </span>
-            <span>Total Amount :${order.amount} </span>
+      <span>
+  Total Amount : ₹{order.amount.toLocaleString("en-IN")}
+</span>
           </p>
         {order.items.map((item, index) => {
   if (!item.product) return null;
@@ -152,7 +154,7 @@ const MyOrders = () => {
               </div>
               <p className=" text-lg">
             
-            Amount:${(item.product?.offerPrice || 0) * item.quantity}
+          Amount: ₹{((item.product?.offerPrice || 0) * item.quantity).toLocaleString("en-IN")}
               </p>
                          {order.status?.toLowerCase() === "order placed" && (
   <button

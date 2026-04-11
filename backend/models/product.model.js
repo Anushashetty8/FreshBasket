@@ -29,6 +29,11 @@ const productSchema = new mongoose.Schema({
         default:true,
         required:true,
     },
+    taxRate:{   
+        type: Number,
+        required:true,  
+        default: 0,
+    },  
 
 });
 

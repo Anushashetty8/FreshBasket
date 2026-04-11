@@ -23,15 +23,23 @@ const Cart = () => {
  const [selectedAddress, setSelectedAddress] = useState(null);
  //select for payment option
  const [paymentOption,setPaymentOption] = useState('COD');
- const getCart = () => {
-    let tempArray = [];
-    for (const key in cartItems) {
-      const product = products.find((product) => product._id === key);
-      product.quantity = cartItems[key];
-      tempArray.push(product);
+const getCart = () => {
+  let tempArray = [];
+
+  for (const key in cartItems) {
+    const product = products.find((p) => p._id === key);
+
+    if (product) {
+      console.log(product); // check added
+      tempArray.push({
+        ...product,
+        quantity: cartItems[key], //  no mutation
+      });
     }
-    setCartArray(tempArray);
-  };
+  }
+
+  setCartArray(tempArray);
+};
 
   const getAddress = async () => {
     try {
@@ -85,6 +93,12 @@ const Cart = () => {
       toast.error(error.message);
     }
   };
+  const totalTax = cartArray.reduce((acc, product) => {
+    const itemTotal = product.offerPrice * product.quantity;
+    return acc + (itemTotal * (product.taxRate || 0)) / 100;
+  }, 0);
+
+  const grandTotal = totalCartAmount() + totalTax;
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row py-16 max-w-6xl w-full px-6 mx-auto">
       <div className="flex-1 max-w-4xl">
@@ -110,10 +124,10 @@ const Cart = () => {
                   navigate(`product/${product.category}/${product._id}`);
                   scrollTo(0, 0);
                 }}
-                className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded cusror-pointer"
+              className="cursor-pointer w-24 h-24 overflow-hidden flex items-center justify-center border border-gray-300 rounded"
               >
-                <img
-                  className="max-w-full h-full object-cover"
+               <img
+  className="w-full h-full object-cover"
                   src={`http://localhost:5000/images/${product.image[0]}`}
                   alt={product.name}
                 />
@@ -147,9 +161,14 @@ const Cart = () => {
                 </div>
               </div>
             </div>
-            <p className="text-center">
-  ₹{(product.offerPrice * product.quantity).toLocaleString("en-IN")}
-</p>
+           <div className="text-center">
+              <p>
+                ₹{(product.offerPrice * product.quantity).toLocaleString("en-IN")}
+              </p>
+              <p className="text-xs text-gray-400">
+                Tax: {product.taxRate || 0}%
+              </p>
+            </div>
             <button
               onClick={() => removeFromCart(product._id)}
               className="cursor-pointer mx-auto"
@@ -259,17 +278,14 @@ const Cart = () => {
             <span>Shipping Fee</span>
             <span className="text-green-600">Free</span>
           </p>
-          <p className="flex justify-between">
-            <span>Tax (2%)</span>
-        <span>
-  ₹{((totalCartAmount() * 2) / 100).toLocaleString("en-IN")}
-</span>
+       
+        <p className="flex justify-between">
+            <span>Total Tax</span>
+            <span>₹{totalTax.toLocaleString("en-IN")}</span>
           </p>
-          <p className="flex justify-between text-lg font-medium mt-3">
-            <span>Total Amount:</span>
-         <span>
-  ₹{(totalCartAmount() + (totalCartAmount() * 2) / 100).toLocaleString("en-IN")}
-</span>
+          <p className="flex justify-between font-bold">
+            <span>Total</span>
+            <span>₹{grandTotal.toLocaleString("en-IN")}</span>
           </p>
         </div>
 

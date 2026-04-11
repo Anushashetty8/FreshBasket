@@ -18,7 +18,7 @@ import Products from './pages/Admin/Products';
 import SellerLogin from "./pages/Admin/SellerLogin";
 import ManageProducts from "./pages/Admin/ManageProducts";
 import ManageOrders from "./pages/Admin/ManageOrders";
-
+import EditProduct from "./pages/Admin/EditProduct";
 const App = () => {
   const {isSeller, showUserLogin} = useContext(AuthContext);
   const isSellerPath = useLocation().pathname.includes("seller");
@@ -42,6 +42,7 @@ const App = () => {
         <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
             <Route index element={isSeller ? <ManageProducts/> : null}/>
             <Route path="product-list"element={isSeller ? <Products/> : null }/>
+            <Route path="edit-product/:id" element={isSeller ? <EditProduct/> : null }/>
             <Route path="orders"element={isSeller ? <ManageOrders/> : null }/>
            
             </Route>

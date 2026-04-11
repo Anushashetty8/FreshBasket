@@ -11,7 +11,8 @@ export const placeOrderCOD = async (req, res) => {
         .json({ message: "Invalid order details", success: false });
     }
     // calculate amount using items;
-  let amount = 0;
+ let amount = 0;
+let totalTax = 0;
 
 for (const item of items) {
   const product = await Product.findById(item.product);
@@ -23,23 +24,32 @@ for (const item of items) {
     });
   }
 
-  amount += product.offerPrice * item.quantity;
-}
+  const itemPrice = product.offerPrice * item.quantity;
 
-    // Add tex charfe 2%
-    amount += Math.floor((amount * 2) / 100);
+  // calculate tax for this product
+  const tax = (itemPrice * (product.taxRate||0)) / 100;
+
+  amount += itemPrice;
+  totalTax += tax;
+}
+const finalAmount = amount + totalTax;
+    
     await Order.create({
       userId,
       items,
       address,
-      amount,
+      amount:finalAmount,
+      totalTax:totalTax,
       paymentType: "COD",
       isPaid: false,
       status: "Order Placed",
     });
     res
       .status(201)
-      .json({ message: "Order placed successfully", success: true });
+      .json({ message: "Order placed successfully", success: true ,
+        amount: finalAmount,
+        totalTax: totalTax
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });

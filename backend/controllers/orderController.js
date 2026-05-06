@@ -217,3 +217,106 @@ export const assignDeliveryBoy = async (req, res) => {
     });
   }
 };
+export const returnOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID is required",
+      });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    // only delivered orders
+    if (order.status?.toLowerCase() !== "delivered") {
+      return res.status(400).json({
+        success: false,
+        message: "Only delivered orders can be returned",
+      });
+    }
+
+    
+    if (order.status === "Return Requested") {
+      return res.status(400).json({
+        success: false,
+        message: "Return already requested",
+      });
+    }
+
+  
+    order.status = "Return Requested";
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Return request sent to admin",
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+export const approveReturn = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID is required",
+      });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    //  Only allow if return was requested
+    if (order.status !== "Return Requested") {
+      return res.status(400).json({
+        success: false,
+        message: "No return request found",
+      });
+    }
+
+    //  Approve return
+    order.status = "Returned";
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Return approved successfully",
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+    
+
+    
+

@@ -6,6 +6,7 @@ const MyOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
   const { axios, user } = useContext(AuthContext);
 
+  // ================= FETCH ORDERS =================
   const fetchOrders = async () => {
     try {
       const { data } = await axios.get("/api/order/user");
@@ -20,6 +21,7 @@ const MyOrders = () => {
     }
   };
 
+  // ================= CANCEL =================
   const cancelOrder = async (orderId) => {
     try {
       if (!window.confirm("Are you sure you want to cancel this order?")) return;
@@ -37,6 +39,25 @@ const MyOrders = () => {
     }
   };
 
+  // ================= RETURN =================
+  const returnOrder = async (orderId) => {
+    try {
+      if (!window.confirm("Do you want to return this order?")) return;
+
+      const { data } = await axios.post("/api/order/return", { orderId });
+
+      if (data.success) {
+        toast.success(data.message);
+        fetchOrders();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // ================= LOAD =================
   useEffect(() => {
     if (user) fetchOrders();
   }, [user]);
@@ -53,14 +74,14 @@ const MyOrders = () => {
             key={index}
             className="my-8 border border-gray-300 rounded-lg p-4 max-w-4xl"
           >
-            {/* Top Info */}
+            {/* TOP INFO */}
             <div className="flex justify-between flex-wrap gap-4">
               <span>OrderId: {order._id}</span>
               <span>Payment: {order.paymentType}</span>
               <span>Amount: ₹{order.amount?.toLocaleString("en-IN")}</span>
             </div>
 
-            {/* Assigning */}
+            {/* ASSIGNING */}
             {status === "order placed" && (
               <div className="mt-3 p-3 bg-yellow-50 rounded-md">
                 <p className="text-yellow-700 font-medium">
@@ -69,20 +90,18 @@ const MyOrders = () => {
               </div>
             )}
 
-            {/* ✅ DELIVERY DETAILS FIX */}
+            {/* DELIVERY DETAILS */}
             {order.deliveryBoy && ["shipped", "delivered"].includes(status) && (
               <div className="mt-3 p-3 bg-gray-100 rounded-md">
                 <p className="font-medium">Delivery Details</p>
 
-                <p>Name: {order.deliveryBoy?.name || "N/A"}</p>
-                <p>Phone: {order.deliveryBoy?.phone || "N/A"}</p>
-
-                {/* ✅ FIXED HERE */}
+                <p>Name: {order.deliveryBoy?.name}</p>
+                <p>Phone: {order.deliveryBoy?.phone}</p>
                 <p>
                   Vehicle:{" "}
                   {order.deliveryBoy?.vehicleNumber ||
                     order.deliveryBoy?.vehicle ||
-                    "Not Available"}
+                    "N/A"}
                 </p>
 
                 <div className="flex gap-3 mt-2">
@@ -105,7 +124,7 @@ const MyOrders = () => {
               </div>
             )}
 
-            {/* Items */}
+            {/* ITEMS */}
             {order.items.map((item, i) => {
               if (!item.product) return null;
 
@@ -114,7 +133,7 @@ const MyOrders = () => {
                   key={i}
                   className="border-t mt-4 pt-4 flex flex-col md:flex-row justify-between"
                 >
-                  {/* Product */}
+                  {/* PRODUCT */}
                   <div className="flex gap-4">
                     <img
                       src={
@@ -132,7 +151,7 @@ const MyOrders = () => {
                     </div>
                   </div>
 
-                  {/* Status */}
+                  {/* STATUS */}
                   <div className="mt-3 md:mt-0">
                     <p>Qty: {item.quantity}</p>
 
@@ -146,13 +165,15 @@ const MyOrders = () => {
                           ? "text-green-600"
                           : status === "cancelled"
                           ? "text-red-500"
+                          : status === "returned"
+                          ? "text-purple-600"
                           : ""
                       }`}
                     >
                       Status: {order.status}
                     </p>
 
-                    {/* STATUS TRACKER */}
+                    {/* TRACKER */}
                     <div className="flex items-center gap-2 mt-2 text-sm">
                       <div
                         className={`w-3 h-3 rounded-full ${
@@ -191,7 +212,7 @@ const MyOrders = () => {
                     </p>
                   </div>
 
-                  {/* Price */}
+                  {/* PRICE */}
                   <p className="mt-2 md:mt-0 font-medium">
                     ₹
                     {(
@@ -199,15 +220,30 @@ const MyOrders = () => {
                     ).toLocaleString("en-IN")}
                   </p>
 
-                  {/* Cancel */}
-                  {status === "order placed" && (
-                    <button
-                      onClick={() => cancelOrder(order._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded mt-2"
-                    >
-                      Cancel
-                    </button>
-                  )}
+                  {/* ACTION BUTTONS */}
+                  <div className="flex flex-col gap-2 mt-2">
+
+                    {/* CANCEL */}
+                    {status === "order placed" && (
+                      <button
+                        onClick={() => cancelOrder(order._id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                      >
+                        Cancel
+                      </button>
+                    )}
+
+                    {/* RETURN */}
+                    {status === "delivered" && (
+                      <button
+                        onClick={() => returnOrder(order._id)}
+                        className="bg-purple-500 text-white px-3 py-1 rounded"
+                      >
+                        Return
+                      </button>
+                    )}
+
+                  </div>
                 </div>
               );
             })}

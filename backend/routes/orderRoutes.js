@@ -5,7 +5,9 @@ import { getAllOrders,
      placeOrderCOD ,
      cancelOrder,
      updateOrderStatus,
-     assignDeliveryBoy
+     assignDeliveryBoy,
+     returnOrder,
+     approveReturn
     } from "../controllers/orderController.js";
 import {authSeller} from "../middleware/authSeller.js";
 const router = express.Router();
@@ -16,4 +18,6 @@ router.post("/cancel", authUser, cancelOrder);
 router.get("/seller",authSeller,getAllOrders);
 router.post("/update-status", authSeller, updateOrderStatus);
 router.post("/assign-delivery-boy", authSeller, assignDeliveryBoy);
+router.post("/return", authUser, returnOrder);
+router.post("/approve-return", authSeller, approveReturn);  
 export default router;

@@ -63,8 +63,8 @@ const MyOrders = () => {
   }, [user]);
 
   return (
-    <div className="mt-12 pb-16">
-      <p className="text-2xl md:text-3xl font-medium">My Orders</p>
+    <div className="mt-12 pb-16 w-full px-6">
+      <p className="text-3xl md:text-4xl font-bold mb-6">My Orders</p>
 
       {myOrders.map((order, index) => {
         const status = order.status?.toLowerCase();
@@ -72,11 +72,13 @@ const MyOrders = () => {
         return (
           <div
             key={index}
-            className="my-8 border border-gray-300 rounded-lg p-4 max-w-4xl"
+            className="my-8 border border-gray-300 rounded-xl p-6 w-full"
           >
             {/* TOP INFO */}
             <div className="flex justify-between flex-wrap gap-4">
-              <span>OrderId: {order._id}</span>
+              <span className="text-md md:text-lg font-medium">
+  OrderId: {order._id}
+</span>
               <span>Payment: {order.paymentType}</span>
               <div>
   <p>
@@ -102,7 +104,7 @@ const MyOrders = () => {
 
             {/* DELIVERY DETAILS */}
             {order.deliveryBoy && status === "shipped" && (
-              <div className="mt-3 p-3 bg-gray-100 rounded-md">
+              <div className="mt-4 p-4 bg-gray-100 rounded-lg text-md">
                 <p className="font-medium">Delivery Details</p>
 
                 <p>Name: {order.deliveryBoy?.name}</p>
@@ -151,13 +153,13 @@ const MyOrders = () => {
                           ? `http://localhost:5000/images/${item.product.image[0]}`
                           : "/placeholder.png"
                       }
-                      className="w-16 h-16"
+                     className="w-24 h-24 md:w-28 md:h-28 rounded-lg object-cover"
                       alt=""
                     />
 
                     <div>
-                      <h2 className="font-medium">{item.product?.name}</h2>
-                      <p>{item.product?.category}</p>
+                      <h2 className="text-lg md:text-xl font-semibold">{item.product?.name}</h2>
+                     <p className="text-md text-gray-600">{item.product?.category}</p>
                     </div>
                   </div>
 
@@ -223,7 +225,7 @@ const MyOrders = () => {
                   </div>
 
                   {/* PRICE */}
-                  <p className="mt-2 md:mt-0 font-medium">
+                  <p className="mt-2 md:mt-0 text-lg md:text-xl font-semibold">
                     ₹
                     {(
                       (item.product?.offerPrice || 0) * item.quantity
@@ -237,7 +239,7 @@ const MyOrders = () => {
                     {status === "order placed" && (
                       <button
                         onClick={() => cancelOrder(order._id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
+                       className="bg-red-500 text-white px-4 py-2 rounded-lg text-md"
                       >
                         Cancel
                       </button>
@@ -247,7 +249,7 @@ const MyOrders = () => {
                     {status === "delivered" && (
                       <button
                         onClick={() => returnOrder(order._id)}
-                        className="bg-purple-500 text-white px-3 py-1 rounded"
+                       className="bg-purple-500 text-white px-4 py-2 rounded-lg text-md"
                       >
                         Return
                       </button>

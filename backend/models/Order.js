@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema(
     ],
 
     amount: { type: Number, required: true },
-
+    deliveryCharge: { type: Number, default: 0 },
     address: { type: mongoose.Schema.Types.ObjectId, ref: "Address" },
 
     status: { type: String, default: "order placed" },

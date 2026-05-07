@@ -34,8 +34,10 @@ export const placeOrderCOD = async (req, res) => {
       amount += itemPrice;
       totalTax += tax;
     }
+const deliveryCharge = amount > 200 ? 0 : 30; // free delivery above 200
 
-    const finalAmount = amount + totalTax;
+const finalAmount = amount + totalTax + deliveryCharge;
+    
 
     //  IMPORTANT: deliveryBoy = null initially
     await Order.create({
@@ -44,6 +46,7 @@ export const placeOrderCOD = async (req, res) => {
       address,
       amount: finalAmount,
       totalTax: totalTax,
+      deliveryCharge: deliveryCharge,
       paymentType: "COD",
       isPaid: false,
       status: "Order Placed",
@@ -55,6 +58,7 @@ export const placeOrderCOD = async (req, res) => {
       success: true,
       amount: finalAmount,
       totalTax: totalTax,
+      deliveryCharge: deliveryCharge,
     });
 
   } catch (error) {
@@ -159,7 +163,14 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
+    //  Update status
     order.status = status;
+
+    //  IMPORTANT FIX
+    if (status.toLowerCase() === "delivered") {
+      order.deliveryBoy = null;   // REMOVE DELIVERY BOY
+    }
+
     await order.save();
 
     res.status(200).json({
@@ -169,6 +180,7 @@ export const updateOrderStatus = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -200,7 +212,9 @@ export const assignDeliveryBoy = async (req, res) => {
 
     const order = await Order.findByIdAndUpdate(
       orderId,
-      { deliveryBoy: deliveryBoyId },
+      { deliveryBoy: deliveryBoyId,
+        status: "Shipped"
+       },
       { new: true }
     ).populate("deliveryBoy");
 

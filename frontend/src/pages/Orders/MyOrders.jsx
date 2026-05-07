@@ -78,7 +78,17 @@ const MyOrders = () => {
             <div className="flex justify-between flex-wrap gap-4">
               <span>OrderId: {order._id}</span>
               <span>Payment: {order.paymentType}</span>
-              <span>Amount: ₹{order.amount?.toLocaleString("en-IN")}</span>
+              <div>
+  <p>
+  Subtotal: ₹{(
+    (order.amount || 0) - (order.deliveryCharge || 0)
+  ).toLocaleString("en-IN")}
+</p>
+
+<p>
+  Delivery: ₹{order.deliveryCharge === 0 ? "Free" : (order.deliveryCharge || 0)}
+</p>
+</div>
             </div>
 
             {/* ASSIGNING */}
@@ -91,7 +101,7 @@ const MyOrders = () => {
             )}
 
             {/* DELIVERY DETAILS */}
-            {order.deliveryBoy && ["shipped", "delivered"].includes(status) && (
+            {order.deliveryBoy && status === "shipped" && (
               <div className="mt-3 p-3 bg-gray-100 rounded-md">
                 <p className="font-medium">Delivery Details</p>
 

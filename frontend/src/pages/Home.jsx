@@ -7,9 +7,9 @@ import NewsLetter from "../components/NewsLetter";
 
 const Home = () => {
   return (
-    <div>
+    <div className="w-full">
       {/* Banner Section with background*/}
-      <div className="relative w-full bg-green-100 rounded-lg overflow-hidden">
+    <div className="relative w-full bg-green-100 rounded-lg overflow-hidden min-h-[400px] md:min-h-[500px]">
         <img
           src={assets.main_banner_bg}
           alt="background desktop"
@@ -22,9 +22,9 @@ const Home = () => {
         />
 
         {/* Text overlay */}
-        <div className="absolute inset-0 flex items-center justify-center md:justify-start px-8 md:px-24 py-12">
-          <div className="text-center md:text-left max-w-xl">
-            <h1 className="text-xl md:text-2xl font-bold text-green-900 leading-tight">
+        <div className="absolute inset-0 flex items-center justify-center md:justify-start px-6 md:px-20 py-16">
+         <div className="text-center md:text-left max-w-2xl">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-green-900 leading-tight">
               Freshness You Can <br />
               Trust, Savings You <br />
               will Love!
@@ -34,7 +34,7 @@ const Home = () => {
             <div className="mt-8 flex flex-col md:flex-row items-center md:items-start gap-4">
               <Link
                 to="/ProductList"
-                className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-800 text-white font-semibold rounded-md hover:bg-purple-900 transition duration-300"
+                className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-purple-800 text-white text-lg font-semibold rounded-md hover:bg-purple-900 transition duration-300"
               >
                 <span>Shop Now</span>
                 <img
@@ -46,7 +46,7 @@ const Home = () => {
 
               <Link
                 to="/ProductList"
-                className="inline-flex items-center justify-center px-6 py-3 bg-purple-800 text-white font-semibold rounded-md hover:bg-purple-900 transition duration-300"
+                className="inline-flex items-center justify-center px-8 py-4 bg-purple-800 text-white text-lg font-semibold rounded-md hover:bg-purple-900 transition duration-300"
               >
                 <span>Explore Deals</span>
               </Link>

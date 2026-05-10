@@ -6,19 +6,26 @@ import toast from "react-hot-toast";
 const ManageOrders = () => {
   const [orders, setOrders] = useState([]);
   const [deliveryBoys, setDeliveryBoys] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [approvingOrderId, setApprovingOrderId] = useState(null);
+  const [error, setError] = useState("");
   const { axios } = useContext(AuthContext);
 
   // Fetch Orders
   const fetchOrders = async () => {
     try {
+      setLoadingOrders(true);
+      setError("");
       const { data } = await axios.get("/api/order/seller");
       if (data.success) {
         setOrders(data.orders);
       } else {
-        toast.error(data.message);
+        setError(data.message || "Failed to load orders");
       }
     } catch (error) {
-      toast.error(error.message);
+      setError(error.message);
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
@@ -53,6 +60,27 @@ const ManageOrders = () => {
     }
   };
 
+  // Approve Return Request
+  const approveReturn = async (orderId) => {
+    try {
+      setApprovingOrderId(orderId);
+      const { data } = await axios.post("/api/order/approve-return", {
+        orderId,
+      });
+
+      if (data.success) {
+        toast.success(data.message || "Return approved successfully");
+        fetchOrders();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setApprovingOrderId(null);
+    }
+  };
+
   // Assign Delivery Boy
   const assignDeliveryBoy = async (orderId, deliveryBoyId) => {
     try {
@@ -80,8 +108,80 @@ const ManageOrders = () => {
     fetchDeliveryBoys();
   }, []);
 
+  const returnRequests = orders.filter(
+    (order) => order?.status?.toLowerCase() === "return requested"
+  );
+
   return (
-    <div className="md:p-10 p-4 space-y-4">
+    <div className="md:p-10 p-4 space-y-6">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium">Return Requests</h2>
+          {loadingOrders && (
+            <span className="text-sm text-gray-500">Loading return requests...</span>
+          )}
+        </div>
+
+        {error && (
+          <div className="rounded bg-red-50 border border-red-200 text-red-700 px-4 py-3">
+            {error}
+          </div>
+        )}
+
+        {returnRequests.length === 0 ? (
+          <div className="rounded bg-gray-50 border border-gray-200 p-4 text-gray-600">
+            No return requests at the moment.
+          </div>
+        ) : (
+          returnRequests.map((order) => {
+            const items = order?.items || [];
+            const userName = order?.userId?.name || order?.userId?.email || "Customer";
+
+            return (
+              <div
+                key={order._id}
+                className="rounded-md border border-gray-300 bg-white p-4 shadow-sm"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">Customer</p>
+                    <p className="font-medium">{userName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Total Amount</p>
+                    <p className="font-medium">₹{(order?.amount || 0).toLocaleString("en-IN")}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Order Status</p>
+                    <p className="font-semibold text-orange-600">{order.status}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => approveReturn(order._id)}
+                    disabled={approvingOrderId === order._id}
+                    className="rounded bg-indigo-500 px-4 py-2 text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+                  >
+                    {approvingOrderId === order._id ? "Approving..." : "Approve Return"}
+                  </button>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm text-gray-500">Products</p>
+                  {items.map((item) => (
+                    <div key={item._id || item.product?._id} className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-3">
+                      <p className="text-sm text-gray-800">
+                        {item?.product?.name || "Product"}
+                      </p>
+                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
       <h2 className="text-lg font-medium">Orders List</h2>
 
       {orders.map((order, index) => {

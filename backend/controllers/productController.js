@@ -2,7 +2,16 @@ import Product from "../models/product.model.js";
 
 export const addProduct = async (req, res) => {
   try {
-    const { name, description, price, offerPrice, category, taxRate } = req.body;
+    const {
+      name,
+      description,
+      price,
+      offerPrice,
+      category,
+      taxRate,
+      stock,
+      expiryDate,
+    } = req.body;
 
     const image = req.files?.map((file) => file.filename);
 
@@ -27,7 +36,9 @@ export const addProduct = async (req, res) => {
       offerPrice,
       category,
       image,
-      taxRate: taxRate || 0, 
+      taxRate: taxRate || 0,
+      stock: stock || 0,
+      expiryDate,
     });
 
     res.status(201).json({
@@ -35,23 +46,32 @@ export const addProduct = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
 export const getProducts = async (req, res) => {
   try {
     const products = await Product.find({}).sort({ createdAt: -1 });
-    res.status(200).json({ products, success: true });
+
+    res.status(200).json({
+      products,
+      success: true,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
-
 export const getProductById = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     const product = await Product.findById(id);
 
@@ -62,12 +82,17 @@ export const getProductById = async (req, res) => {
       });
     }
 
-    res.status(200).json({ product, success: true });
+    res.status(200).json({
+      product,
+      success: true,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
-
 
 export const changeStock = async (req, res) => {
   try {
@@ -92,10 +117,12 @@ export const changeStock = async (req, res) => {
       message: "Stock updated successfully",
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
-
 
 export const deleteProduct = async (req, res) => {
   try {
@@ -115,18 +142,28 @@ export const deleteProduct = async (req, res) => {
       message: "Product deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
-
 
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { name, description, price, offerPrice, category, taxRate, stock, expiryDate } = req.body;
+    const {
+      name,
+      description,
+      price,
+      offerPrice,
+      category,
+      taxRate,
+      stock,
+      expiryDate,
+    } = req.body;
 
-    // handle images
     let updatedData = {
       name,
       description,
@@ -138,14 +175,23 @@ export const updateProduct = async (req, res) => {
       expiryDate,
     };
 
+    // image update
     if (req.files && req.files.length > 0) {
       updatedData.image = req.files.map((file) => file.filename);
+    }
+
+    // single image support
+    if (req.file) {
+      updatedData.image = [req.file.filename];
     }
 
     const product = await Product.findByIdAndUpdate(
       id,
       updatedData,
-      { new: true }
+      {
+        new: true,
+        runValidators: true,
+      }
     );
 
     if (!product) {
@@ -162,6 +208,8 @@ export const updateProduct = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       success: false,
       message: error.message,

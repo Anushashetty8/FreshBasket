@@ -124,7 +124,7 @@ export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { name, description, price, offerPrice, category, taxRate } = req.body;
+    const { name, description, price, offerPrice, category, taxRate, stock, expiryDate } = req.body;
 
     // handle images
     let updatedData = {
@@ -134,6 +134,8 @@ export const updateProduct = async (req, res) => {
       offerPrice,
       category,
       taxRate,
+      stock,
+      expiryDate,
     };
 
     if (req.files && req.files.length > 0) {

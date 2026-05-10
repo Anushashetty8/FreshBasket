@@ -33,7 +33,15 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required:true,  
         default: 0,
-    },  
+    },
+    expiryDate:{
+   type:Date
+},  
+    stock:{    
+        type: Number,
+        required: true,
+        default: 10,
+    }
 
 });
 

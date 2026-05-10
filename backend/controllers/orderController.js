@@ -20,6 +20,16 @@ export const placeOrderCOD = async (req, res) => {
 
     for (const item of items) {
       const product = await Product.findById(item.product);
+      if (product.stock < item.quantity) {
+  return res.status(400).json({
+    success: false,
+    message: `${product.name} is out of stock`,
+  });
+}
+
+// Reduce stock
+product.stock -= item.quantity;
+await product.save();
 
       if (!product) {
         return res.status(404).json({

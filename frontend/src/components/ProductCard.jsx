@@ -38,6 +38,17 @@ const ProductCard = ({ product }) => {
         </div>
         <p className="text-gray-700 font-medium text-lg truncate w-full mt-2">{product.name}</p>
         <p className="text-gray-500/60 text-sm">{product.category}</p>
+        <p className="text-sm font-medium mt-1">
+  {(product.stock ?? 0) > 0 ? (
+    <span className="text-red-500">
+      Only {product.stock} left
+    </span>
+  ) : (
+    <span className="text-gray-400">
+      Out of stock
+    </span>
+  )}
+</p>
       </div>
 
       {/* Rating */}
@@ -65,22 +76,40 @@ const ProductCard = ({ product }) => {
 </p>
 
         <div className="text-indigo-500" onClick={(e) => e.stopPropagation()}>
-          {!cartItems?.[product._id] ? (
+         {(product.stock ?? 0) === 0 ? (
+  <button className="bg-gray-300 text-gray-500 md:w-[80px] w-[64px] h-[34px] rounded">
+    Out
+  </button>
+) : !cartItems?.[product._id] ? (
             <button
-              className="flex items-center justify-center gap-1 bg-indigo-100 border border-indigo-300 md:w-[80px] w-[64px] h-[34px] rounded text-indigo-600 font-medium"
-              onClick={() => addToCart(product._id)}
-            >
-              Add
-            </button>
+  disabled={product.stock === 0}
+  className={`flex items-center justify-center gap-1 md:w-[80px] w-[64px] h-[34px] rounded font-medium ${
+    product.stock === 0
+      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+      : "bg-indigo-100 border border-indigo-300 text-indigo-600"
+  }`}
+  onClick={() => addToCart(product._id)}
+>
+  {product.stock === 0 ? "Out" : "Add"}
+</button>
           ) : (
             <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-indigo-500/25 rounded select-none">
-              <button onClick={() => removeFromCart(product._id)} className="cursor-pointer text-md px-2 h-full">
+              <button 
+                onClick={() => removeFromCart(product._id)} className="cursor-pointer text-md px-2 h-full">
                 -
               </button>
               <span className="w-5 text-center">{cartItems[product._id]}</span>
-              <button onClick={() => addToCart(product._id)} className="cursor-pointer text-md px-2 h-full">
-                +
-              </button>
+             <button
+  disabled={cartItems[product._id] >= product.stock}
+  onClick={() => addToCart(product._id)}
+  className={`text-md px-2 h-full ${
+    cartItems[product._id] >= product.stock
+      ? "cursor-not-allowed opacity-40"
+      : "cursor-pointer"
+  }`}
+>
+  +
+</button>
             </div>
           )}
         </div>

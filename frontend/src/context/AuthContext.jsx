@@ -3,8 +3,12 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+// ================= AXIOS CONFIG =================
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+
+// ✅ FIXED BACKEND URL
+axios.defaults.baseURL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 export const AuthContext = createContext(null);
 
@@ -13,14 +17,18 @@ const AuthContextProvider = ({ children }) => {
 
   const [user, setUser] = useState(null);
 
-  // 🔥 persist seller login
+  // ================= SELLER LOGIN =================
   const [isSeller, setIsSeller] = useState(
     localStorage.getItem("isSeller") === "true"
   );
 
+  // ================= STATES =================
   const [showUserLogin, setShowUserLogin] = useState(false);
+
   const [products, setProducts] = useState([]);
+
   const [cartItems, setCartItems] = useState({});
+
   const [searchQuery, setSearchQuery] = useState("");
 
   // =========================
@@ -37,7 +45,7 @@ const AuthContextProvider = ({ children }) => {
         setIsSeller(false);
         localStorage.removeItem("isSeller");
       }
-    } catch {
+    } catch (error) {
       setIsSeller(false);
       localStorage.removeItem("isSeller");
     }
@@ -52,12 +60,18 @@ const AuthContextProvider = ({ children }) => {
 
       if (data.success) {
         setUser(data.user);
-        setCartItems(data.user.cart || data.user.cartData || {});
+
+        setCartItems(
+          data.user.cart ||
+            data.user.cartItems ||
+            data.user.cartData ||
+            {}
+        );
       } else {
         setUser(null);
         setCartItems({});
       }
-    } catch {
+    } catch (error) {
       setUser(null);
       setCartItems({});
     }
@@ -81,12 +95,12 @@ const AuthContextProvider = ({ children }) => {
   };
 
   // =========================
-  // 🚨 FIXED CART FUNCTIONS
+  // ADD TO CART
   // =========================
   const addToCart = (itemId) => {
-    // ❌ BLOCK guest users
+    // ✅ Block guest users
     if (!user) {
-      toast.error("Please login to add items to cart");
+      toast.error("Please login first");
       setShowUserLogin(true);
       return;
     }
@@ -100,18 +114,28 @@ const AuthContextProvider = ({ children }) => {
     }
 
     setCartItems(cartData);
+
     toast.success("Added to cart");
   };
 
+  // =========================
+  // UPDATE CART ITEM
+  // =========================
   const updateCartItem = (itemId, quantity) => {
     if (!user) return;
 
     let cartData = structuredClone(cartItems) || {};
+
     cartData[itemId] = quantity;
+
     setCartItems(cartData);
+
     toast.success("Cart updated");
   };
 
+  // =========================
+  // REMOVE FROM CART
+  // =========================
   const removeFromCart = (itemId) => {
     if (!user) return;
 
@@ -120,31 +144,43 @@ const AuthContextProvider = ({ children }) => {
     if (cartData[itemId]) {
       cartData[itemId] -= 1;
 
-      if (cartData[itemId] === 0) {
+      if (cartData[itemId] <= 0) {
         delete cartData[itemId];
       }
 
       setCartItems(cartData);
+
       toast.success("Removed from cart");
     }
   };
 
+  // =========================
+  // CART COUNT
+  // =========================
   const cartCount = () => {
     let total = 0;
+
     for (const item in cartItems) {
       total += cartItems[item];
     }
+
     return total;
   };
 
+  // =========================
+  // TOTAL CART AMOUNT
+  // =========================
   const totalCartAmount = () => {
     let total = 0;
 
     for (const item in cartItems) {
-      let product = products.find((p) => p._id === item);
+      let product = products.find(
+        (product) => product._id === item
+      );
 
       if (product && cartItems[item] > 0) {
-        total += cartItems[item] * product.offerPrice;
+        total +=
+          cartItems[item] * product.offerPrice;
       }
     }
 
@@ -152,20 +188,23 @@ const AuthContextProvider = ({ children }) => {
   };
 
   // =========================
-  // SYNC CART (ONLY IF LOGIN)
+  // UPDATE CART IN DATABASE
   // =========================
   useEffect(() => {
     const updateCart = async () => {
       try {
-        const { data } = await axios.post("/api/cart/update", {
-          cartItems,
-        });
+        const { data } = await axios.post(
+          "/api/cart/update",
+          {
+            cartItems,
+          }
+        );
 
         if (!data.success) {
           toast.error(data.message);
         }
       } catch (error) {
-        toast.error(error.message);
+        console.log(error.message);
       }
     };
 
@@ -183,8 +222,12 @@ const AuthContextProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+  // =========================
+  // CONTEXT VALUE
+  // =========================
   const value = {
     navigate,
+
     user,
     setUser,
 
@@ -195,12 +238,14 @@ const AuthContextProvider = ({ children }) => {
     setShowUserLogin,
 
     products,
+
     cartItems,
     setCartItems,
 
     addToCart,
     updateCartItem,
     removeFromCart,
+
     cartCount,
     totalCartAmount,
 
@@ -208,7 +253,9 @@ const AuthContextProvider = ({ children }) => {
     setSearchQuery,
 
     axios,
+
     fetchProducts,
+    fetchUser,
   };
 
   return (

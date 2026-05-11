@@ -19,6 +19,7 @@ import SellerLogin from "./pages/Admin/SellerLogin";
 import ManageProducts from "./pages/Admin/ManageProducts";
 import ManageOrders from "./pages/Admin/ManageOrders";
 import EditProduct from "./pages/Admin/EditProduct";
+import ResetPassword from "./pages/Auth/ResetPassword";
 const App = () => {
   const {isSeller, showUserLogin} = useContext(AuthContext);
   const isSellerPath = useLocation().pathname.includes("seller");
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/add-address" element={<AddAddress />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
             <Route index element={isSeller ? <ManageProducts/> : null}/>

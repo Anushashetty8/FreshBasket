@@ -2,6 +2,15 @@ import { useContext, useState } from "react";
 import React from "react";
 import { AuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ShoppingBag,
+  ArrowRight,
+} from "lucide-react";
 
 const Login = () => {
   const [state, setState] = React.useState("login");
@@ -11,6 +20,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const [forgotMode, setForgotMode] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const { setShowUserLogin, setUser, axios, navigate } =
     useContext(AuthContext);
@@ -90,128 +101,234 @@ const Login = () => {
   return (
     <div
       onClick={() => setShowUserLogin(false)}
-      className="fixed top-0 bottom-0 left-0 right-0 z-40 flex items-center justify-center bg-black/50 text-gray-600"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
     >
-      <form
+      <div
         onClick={(e) => e.stopPropagation()}
-        onSubmit={
-          forgotMode
-            ? forgotPasswordHandler
-            : submitHandler
-        }
-        className="flex flex-col gap-4 m-auto items-start p-8 py-12 w-80 sm:w-[352px] text-gray-500 rounded-lg shadow-xl border border-gray-200 bg-white"
+        className="w-full max-w-5xl grid md:grid-cols-2 overflow-hidden rounded-3xl shadow-2xl bg-white"
       >
-        <p className="text-2xl font-medium m-auto">
-          <span className="text-indigo-500">User</span>{" "}
-          {forgotMode
-            ? "Forgot Password"
-            : state === "login"
-            ? "Login"
-            : "Sign Up"}
-        </p>
+        {/* LEFT SIDE */}
+        <div className="hidden md:flex flex-col justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-10 text-white relative overflow-hidden">
+          
+          <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full -translate-x-24 -translate-y-24"></div>
 
-        {/* NAME */}
-        {state === "register" && !forgotMode && (
-          <div className="w-full">
-            <p>Name</p>
+          <div className="absolute bottom-0 right-0 w-72 h-72 bg-white/10 rounded-full translate-x-24 translate-y-24"></div>
 
-            <input
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-              placeholder="type here"
-              className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500"
-              type="text"
-              required
-            />
+          <div className="relative z-10">
+            <div className="bg-white/20 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
+              <ShoppingBag size={40} />
+            </div>
+
+            <h1 className="text-5xl font-bold leading-tight">
+              Welcome Back
+            </h1>
+
+            <p className="mt-6 text-lg text-white/90 leading-8">
+              Login to continue shopping, track your
+              orders, manage your cart and enjoy a
+              premium grocery delivery experience.
+            </p>
+
+            <div className="mt-10 flex items-center gap-3 text-lg font-medium">
+              <span>Fresh Basket</span>
+              <ArrowRight size={20} />
+            </div>
           </div>
-        )}
-
-        {/* EMAIL */}
-        <div className="w-full ">
-          <p>Email</p>
-
-          <input
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            placeholder="type here"
-            className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500"
-            type="email"
-            required
-          />
         </div>
 
-        {/* PASSWORD */}
-        {!forgotMode && (
-          <div className="w-full ">
-            <p>Password</p>
-
-            <input
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              placeholder="type here"
-              className="border border-gray-200 rounded w-full p-2 mt-1 outline-indigo-500"
-              type="password"
-              required
-            />
-          </div>
-        )}
-
-        {/* FORGOT PASSWORD */}
-        {!forgotMode && state === "login" && (
-          <p
-            onClick={() => setForgotMode(true)}
-            className="text-indigo-500 cursor-pointer text-sm"
+        {/* RIGHT SIDE */}
+        <form
+          onSubmit={
+            forgotMode
+              ? forgotPasswordHandler
+              : submitHandler
+          }
+          className="bg-white p-8 md:p-12 flex flex-col justify-center"
+        >
+          {/* CLOSE BUTTON */}
+          <button
+            type="button"
+            onClick={() => setShowUserLogin(false)}
+            className="self-end text-2xl text-gray-400 hover:text-black transition"
           >
-            Forgot Password?
-          </p>
-        )}
+            ×
+          </button>
 
-        {/* LOGIN / REGISTER SWITCH */}
-        {!forgotMode &&
-          (state === "register" ? (
-            <p>
-              Already have account?{" "}
-              <span
-                onClick={() => setState("login")}
-                className="text-indigo-500 cursor-pointer"
-              >
-                click here
-              </span>
+          {/* TITLE */}
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold text-gray-800">
+              {forgotMode
+                ? "Forgot Password"
+                : state === "login"
+                ? "Login"
+                : "Create Account"}
+            </h2>
+
+            <p className="text-gray-500 mt-2">
+              {forgotMode
+                ? "We’ll send a password reset link"
+                : "Access your account instantly"}
             </p>
+          </div>
+
+          {/* NAME */}
+          {state === "register" && !forgotMode && (
+            <div className="mb-5">
+              <label className="text-sm font-semibold text-gray-600">
+                Full Name
+              </label>
+
+              <div className="flex items-center gap-3 border-2 border-gray-200 rounded-xl px-4 py-3 mt-2 focus-within:border-indigo-500 transition">
+                <User size={20} className="text-gray-400" />
+
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  className="w-full outline-none bg-transparent"
+                  value={name}
+                  onChange={(e) =>
+                    setName(e.target.value)
+                  }
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {/* EMAIL */}
+          <div className="mb-5">
+            <label className="text-sm font-semibold text-gray-600">
+              Email Address
+            </label>
+
+            <div className="flex items-center gap-3 border-2 border-gray-200 rounded-xl px-4 py-3 mt-2 focus-within:border-indigo-500 transition">
+              <Mail size={20} className="text-gray-400" />
+
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full outline-none bg-transparent"
+                value={email}
+                onChange={(e) =>
+                  setEmail(e.target.value)
+                }
+                required
+              />
+            </div>
+          </div>
+
+          {/* PASSWORD */}
+          {!forgotMode && (
+            <div className="mb-3">
+              <label className="text-sm font-semibold text-gray-600">
+                Password
+              </label>
+
+              <div className="flex items-center gap-3 border-2 border-gray-200 rounded-xl px-4 py-3 mt-2 focus-within:border-indigo-500 transition">
+                <Lock size={20} className="text-gray-400" />
+
+                <input
+                  type={
+                    showPassword ? "text" : "password"
+                  }
+                  placeholder="Enter your password"
+                  className="w-full outline-none bg-transparent"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                >
+                  {showPassword ? (
+                    <EyeOff
+                      size={20}
+                      className="text-gray-400"
+                    />
+                  ) : (
+                    <Eye
+                      size={20}
+                      className="text-gray-400"
+                    />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* FORGOT PASSWORD */}
+          {!forgotMode && state === "login" && (
+            <div className="w-full text-right mb-6">
+              <button
+                type="button"
+                onClick={() => setForgotMode(true)}
+                className="text-indigo-600 text-sm font-medium hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
+          )}
+
+          {/* BUTTON */}
+          <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3.5 rounded-xl font-semibold text-lg shadow-lg hover:scale-[1.02] transition-all duration-300">
+            {forgotMode
+              ? "Send Reset Link"
+              : state === "register"
+              ? "Create Account"
+              : "Login"}
+          </button>
+
+          {/* SWITCH */}
+          {!forgotMode ? (
+            <div className="mt-6 text-center text-gray-600">
+              {state === "login" ? (
+                <>
+                  Don’t have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setState("register")
+                    }
+                    className="text-indigo-600 font-semibold hover:underline"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setState("login")
+                    }
+                    className="text-indigo-600 font-semibold hover:underline"
+                  >
+                    Login
+                  </button>
+                </>
+              )}
+            </div>
           ) : (
-            <p>
-              Create an account?{" "}
-              <span
-                onClick={() => setState("register")}
-                className="text-indigo-500 cursor-pointer"
+            <div className="mt-6 text-center text-gray-600">
+              Back to{" "}
+              <button
+                type="button"
+                onClick={() => setForgotMode(false)}
+                className="text-indigo-600 font-semibold hover:underline"
               >
-                click here
-              </span>
-            </p>
-          ))}
-
-        {/* BACK TO LOGIN */}
-        {forgotMode && (
-          <p>
-            Back to Login?{" "}
-            <span
-              onClick={() => setForgotMode(false)}
-              className="text-indigo-500 cursor-pointer"
-            >
-              click here
-            </span>
-          </p>
-        )}
-
-        {/* BUTTON */}
-        <button className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white w-full py-2 rounded-md cursor-pointer">
-          {forgotMode
-            ? "Send Reset Link"
-            : state === "register"
-            ? "Create Account"
-            : "Login"}
-        </button>
-      </form>
+                Login
+              </button>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   );
 };

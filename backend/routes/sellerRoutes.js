@@ -18,7 +18,7 @@ router.post("/register", registerSeller);
 router.post("/login", sellerLogin);
 
 // CHECK AUTH
-router.get("/is-auth", authSeller, isAuthSeller);
+router.get("/is-auth", isAuthSeller);
 
 // LOGOUT
 router.post("/logout", sellerLogout);

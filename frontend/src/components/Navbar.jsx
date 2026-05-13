@@ -7,6 +7,7 @@ import cart_icon from "../assets/cart_icon.svg";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const {
     user,
@@ -18,13 +19,25 @@ const Navbar = () => {
     setSearchQuery,
   } = useContext(AuthContext);
 
+  // SEARCH NAVIGATION
   useEffect(() => {
     if (searchQuery.length > 0) {
-      navigate("/productList");
+      navigate("/ProductList");
     }
   }, [searchQuery]);
 
-  // LOGOUT FUNCTION
+  // SCROLL EFFECT
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // LOGOUT
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -35,159 +48,247 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-6 border-b border-gray-300 bg-white">
-      
-      {/* LOGO */}
-      <Link to={"/"}>
-        <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-orange-500 to-green-600 bg-clip-text text-transparent tracking-wide">
-          FreshBasket
-        </h1>
-      </Link>
+    <>
+      <nav
+        className={`sticky top-0 z-50 transition-all duration-300
+        ${
+          scrolled
+            ? "bg-white/80 backdrop-blur-xl shadow-lg"
+            : "bg-white"
+        }
+        border-b border-gray-200`}
+      >
+        <div className="flex items-center justify-between px-5 md:px-12 lg:px-20 py-4">
 
-      {/* DESKTOP MENU */}
-      <div className="hidden sm:flex items-center gap-8 text-lg font-medium">
-        
-        <Link to={"/"}>Home</Link>
-        <Link to={"/ProductList"}>All Products</Link>
+          {/* LOGO */}
+          <Link to={"/"} className="group">
+            <h1 className="text-3xl md:text-5xl font-black tracking-wide bg-gradient-to-r from-orange-500 via-green-500 to-emerald-600 bg-clip-text text-transparent group-hover:scale-105 transition duration-300">
+              FreshBasket
+            </h1>
+          </Link>
 
-        {/* SEARCH */}
-        <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
-          <input
-            onChange={(e) => setSearchQuery(e.target.value)}
-            value={searchQuery}
-            className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
-            type="text"
-            placeholder="Search products"
-          />
+          {/* DESKTOP MENU */}
+          <div className="hidden lg:flex items-center gap-8">
 
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.836 10.615 15 14.695"
-              stroke="#7A7B7D"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              clipRule="evenodd"
-              d="M9.141 11.738c2.729-1.136 4.001-4.224 2.841-6.898S7.67.921 4.942 2.057C2.211 3.193.94 6.281 2.1 8.955s4.312 3.92 7.041 2.783"
-              stroke="#7A7B7D"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+            {/* NAV LINKS */}
+            <div className="flex items-center gap-7 text-[17px] font-semibold text-gray-700">
 
-        {/* CART */}
-        <div
-          onClick={() => navigate("/cart")}
-          className="relative cursor-pointer"
-        >
-          <img src={cart_icon} alt="" className="w-6 h-6" />
-
-          <button className="absolute -top-2 -right-3 text-xs text-white bg-indigo-500 w-[18px] h-[18px] rounded-full">
-            {cartCount()}
-          </button>
-        </div>
-
-        {/* USER SECTION */}
-        {user ? (
-          <div className="relative group">
-            <img src={profile_icon} alt="" className="w-10 cursor-pointer" />
-
-            <ul className="hidden group-hover:block absolute top-10 right-0 bg-white shadow-md rounded-md border border-gray-200 py-2 w-32 z-40 text-sm">
-              
-              <li
-                onClick={() => {
-                  navigate("/my-orders");
-                }}
-                className="p-2 cursor-pointer hover:bg-gray-100"
+              <Link
+                to={"/"}
+                className="relative hover:text-green-600 transition"
               >
-                My Orders
-              </li>
+                Home
+                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-green-600 transition-all duration-300 hover:w-full"></span>
+              </Link>
 
-              <li
-                onClick={handleLogout}
-                className="p-2 cursor-pointer hover:bg-gray-100"
+              <Link
+                to={"/ProductList"}
+                className="relative hover:text-green-600 transition"
               >
-                Logout
-              </li>
-            </ul>
+                Products
+                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-green-600 transition-all duration-300 hover:w-full"></span>
+              </Link>
+
+              <Link
+                to={"/my-orders"}
+                className="relative hover:text-green-600 transition"
+              >
+                Orders
+                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-green-600 transition-all duration-300 hover:w-full"></span>
+              </Link>
+            </div>
+
+            {/* SEARCH BAR */}
+            <div className="flex items-center gap-3 bg-gray-100 border border-gray-200 px-5 py-3 rounded-full w-[320px] hover:shadow-md transition">
+
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                className="text-gray-500"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search fresh groceries..."
+                className="bg-transparent outline-none w-full text-gray-700 placeholder-gray-400"
+              />
+            </div>
+
+            {/* CART */}
+            <div
+              onClick={() => navigate("/cart")}
+              className="relative cursor-pointer group"
+            >
+              <div className="bg-gradient-to-r from-green-100 to-orange-100 p-3 rounded-full shadow-sm group-hover:scale-110 transition duration-300">
+                <img
+                  src={cart_icon}
+                  alt=""
+                  className="w-7 h-7"
+                />
+              </div>
+
+              <span className="absolute -top-1 -right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                {cartCount()}
+              </span>
+            </div>
+
+            {/* USER PROFILE */}
+            {user ? (
+              <div className="relative group">
+
+                <div className="flex items-center gap-2 cursor-pointer bg-gray-100 hover:bg-gray-200 transition px-3 py-2 rounded-full">
+                  <img
+                    src={profile_icon}
+                    alt=""
+                    className="w-10 h-10 rounded-full border-2 border-green-500"
+                  />
+
+                  <div className="hidden xl:block">
+                    <p className="text-sm font-semibold text-gray-800">
+                      Hello 👋
+                    </p>
+
+                    <p className="text-xs text-gray-500">
+                      {user?.name || "User"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* DROPDOWN */}
+                <div className="absolute top-14 right-0 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden">
+
+                  <button
+                    onClick={() => navigate("/my-orders")}
+                    className="w-full text-left px-5 py-4 hover:bg-green-50 transition font-medium"
+                  >
+                    📦 My Orders
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-5 py-4 hover:bg-red-50 transition text-red-500 font-medium"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowUserLogin(true)}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105 transition duration-300 text-white px-8 py-3 rounded-full font-semibold shadow-lg"
+              >
+                Login
+              </button>
+            )}
           </div>
-        ) : (
-          <button
-            onClick={() => {
-              setShowUserLogin(true);
-            }}
-            className="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full"
-          >
-            Login
-          </button>
-        )}
-      </div>
 
-      {/* MOBILE MENU BUTTON */}
-      <button
-        onClick={() => setOpen(!open)}
-        aria-label="Menu"
-        className="sm:hidden"
-      >
-        <svg
-          width="21"
-          height="15"
-          viewBox="0 0 21 15"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          {/* MOBILE RIGHT */}
+          <div className="flex lg:hidden items-center gap-4">
+
+            {/* CART */}
+            <div
+              onClick={() => navigate("/cart")}
+              className="relative cursor-pointer"
+            >
+              <img
+                src={cart_icon}
+                alt=""
+                className="w-7 h-7"
+              />
+
+              <span className="absolute -top-2 -right-2 bg-green-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+                {cartCount()}
+              </span>
+            </div>
+
+            {/* MENU BUTTON */}
+            <button
+              onClick={() => setOpen(!open)}
+              className="flex flex-col gap-1"
+            >
+              <span className="w-7 h-[3px] bg-gray-700 rounded"></span>
+              <span className="w-7 h-[3px] bg-gray-700 rounded"></span>
+              <span className="w-7 h-[3px] bg-gray-700 rounded"></span>
+            </button>
+          </div>
+        </div>
+
+        {/* MOBILE MENU */}
+        <div
+          className={`lg:hidden transition-all duration-300 overflow-hidden
+          ${
+            open
+              ? "max-h-[500px] py-5"
+              : "max-h-0"
+          } bg-white border-t border-gray-200`}
         >
-          <rect width="21" height="1.5" rx=".75" fill="#426287" />
-          <rect x="8" y="6" width="13" height="1.5" rx=".75" fill="#426287" />
-          <rect x="6" y="13" width="15" height="1.5" rx=".75" fill="#426287" />
-        </svg>
-      </button>
+          <div className="flex flex-col gap-5 px-6">
 
-      {/* MOBILE MENU */}
-      <div
-        className={`${
-          open ? "flex" : "hidden"
-        } absolute top-[80px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-4 px-5 text-sm md:hidden z-50`}
-      >
-        <Link to={"/"}>Home</Link>
+            {/* SEARCH */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="border border-gray-300 rounded-full px-5 py-3 outline-none"
+            />
 
-        <Link to={"/ProductList"}>All Products</Link>
-
-        {user ? (
-          <>
-            <button
-              onClick={() => navigate("/my-orders")}
-              className="cursor-pointer"
+            <Link
+              to={"/"}
+              onClick={() => setOpen(false)}
+              className="font-medium"
             >
-              My Orders
-            </button>
+              Home
+            </Link>
 
-            <button
-              onClick={handleLogout}
-              className="cursor-pointer text-red-500"
+            <Link
+              to={"/ProductList"}
+              onClick={() => setOpen(false)}
+              className="font-medium"
             >
-              Logout
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={() => setShowUserLogin(true)}
-            className="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full"
-          >
-            Login
-          </button>
-        )}
-      </div>
-    </nav>
+              Products
+            </Link>
+
+            {user ? (
+              <>
+                <button
+                  onClick={() => {
+                    navigate("/my-orders");
+                    setOpen(false);
+                  }}
+                  className="text-left font-medium"
+                >
+                  My Orders
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="text-left text-red-500 font-medium"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setShowUserLogin(true)}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-full font-semibold"
+              >
+                Login
+              </button>
+            )}
+          </div>
+        </div>
+      </nav>
+    </>
   );
 };
 

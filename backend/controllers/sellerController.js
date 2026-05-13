@@ -107,14 +107,42 @@ export const sellerLogin = async (req, res) => {
 // CHECK AUTH
 export const isAuthSeller = async (req, res) => {
   try {
+    const { sellerToken } = req.cookies;
+
+    if (!sellerToken) {
+      return res.json({
+        success: false,
+        message: "Not authenticated",
+      });
+    }
+
+    const decoded = jwt.verify(sellerToken, process.env.JWT_SECRET);
+
+    if (!decoded?.id) {
+      return res.json({
+        success: false,
+        message: "Invalid token",
+      });
+    }
+
+    const seller = await Seller.findById(decoded.id);
+
+    if (!seller) {
+      return res.json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
     res.json({
       success: true,
       message: "Seller authenticated",
+      seller,
     });
   } catch (error) {
-    res.status(500).json({
+    res.json({
       success: false,
-      message: error.message,
+      message: "Authentication failed",
     });
   }
 };

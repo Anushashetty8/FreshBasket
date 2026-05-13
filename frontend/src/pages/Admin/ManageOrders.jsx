@@ -9,7 +9,18 @@ const ManageOrders = () => {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [approvingOrderId, setApprovingOrderId] = useState(null);
   const [error, setError] = useState("");
-  const { axios } = useContext(AuthContext);
+  const { axios, products } = useContext(AuthContext);
+
+  const totalProducts = products.length;
+  const outOfStockProducts = products.filter(
+    (product) =>
+      product.inStock === false || (product.stock ?? 0) <= 0
+  ).length;
+  const totalSales = orders
+    .filter((order) =>
+      order.status?.toLowerCase() === "delivered"
+    )
+    .reduce((sum, order) => sum + (order.amount || 0), 0);
 
   // Fetch Orders
   const fetchOrders = async () => {
@@ -114,6 +125,25 @@ const ManageOrders = () => {
 
   return (
     <div className="md:p-10 p-4 space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-gray-500">Total Products</p>
+          <p className="text-3xl font-semibold text-gray-900">{totalProducts}</p>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-gray-500">Out of Stock</p>
+          <p className="text-3xl font-semibold text-red-600">{outOfStockProducts}</p>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-gray-500">Total Sales</p>
+          <p className="text-3xl font-semibold text-green-600">
+            ₹{totalSales.toLocaleString("en-IN")}
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium">Return Requests</h2>

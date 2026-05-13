@@ -58,7 +58,7 @@ const Home = () => {
 
               {/* SHOP NOW */}
               <Link
-                to="/ProductList"
+                to="/productList"
                 className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-green-500 hover:bg-green-600 text-white text-lg font-semibold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 Shop Now
@@ -72,7 +72,7 @@ const Home = () => {
 
               {/* EXPLORE */}
               <Link
-                to="/ProductList"
+                to="/productList"
                 className="inline-flex items-center justify-center px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white text-lg font-semibold rounded-2xl transition-all duration-300 hover:scale-105"
               >
                 Explore Deals

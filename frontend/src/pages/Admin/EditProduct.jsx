@@ -84,7 +84,7 @@ const EditProduct = () => {
       if (data.success) {
         toast.success("Product updated successfully");
         fetchProducts();
-        navigate("/admin/products");
+        navigate("/seller/product-list");
       } else {
         toast.error(data.message);
       }

@@ -9,5 +9,5 @@ import { authSeller } from '../middleware/authSeller.js';
 const router = express.Router();
 router.post("/login",sellerLogin);
 router.get("/is-auth",authSeller,isAuthSeller);
-router.get("/logout",authSeller,sellerLogout);
+router.post("/logout",authSeller,sellerLogout);
 export default router;

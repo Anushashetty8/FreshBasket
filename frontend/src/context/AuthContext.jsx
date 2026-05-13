@@ -6,7 +6,6 @@ import axios from "axios";
 // ================= AXIOS CONFIG =================
 axios.defaults.withCredentials = true;
 
-// ✅ FIXED BACKEND URL
 axios.defaults.baseURL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -15,14 +14,13 @@ export const AuthContext = createContext(null);
 const AuthContextProvider = ({ children }) => {
   const navigate = useNavigate();
 
+  // ================= STATES =================
   const [user, setUser] = useState(null);
 
-  // ================= SELLER LOGIN =================
   const [isSeller, setIsSeller] = useState(
     localStorage.getItem("isSeller") === "true"
   );
 
-  // ================= STATES =================
   const [showUserLogin, setShowUserLogin] = useState(false);
 
   const [products, setProducts] = useState([]);
@@ -61,6 +59,8 @@ const AuthContextProvider = ({ children }) => {
       if (data.success) {
         setUser(data.user);
 
+        localStorage.setItem("user", JSON.stringify(data.user));
+
         setCartItems(
           data.user.cart ||
             data.user.cartItems ||
@@ -69,10 +69,16 @@ const AuthContextProvider = ({ children }) => {
         );
       } else {
         setUser(null);
+
+        localStorage.removeItem("user");
+
         setCartItems({});
       }
     } catch (error) {
       setUser(null);
+
+      localStorage.removeItem("user");
+
       setCartItems({});
     }
   };
@@ -98,7 +104,6 @@ const AuthContextProvider = ({ children }) => {
   // ADD TO CART
   // =========================
   const addToCart = (itemId) => {
-    // ✅ Block guest users
     if (!user) {
       toast.error("Please login first");
       setShowUserLogin(true);
@@ -179,12 +184,38 @@ const AuthContextProvider = ({ children }) => {
       );
 
       if (product && cartItems[item] > 0) {
-        total +=
-          cartItems[item] * product.offerPrice;
+        total += cartItems[item] * product.offerPrice;
       }
     }
 
     return Math.floor(total * 100) / 100;
+  };
+
+  // =========================
+  // LOGOUT FUNCTION
+  // =========================
+  const logout = async () => {
+    try {
+      // SELLER LOGOUT API
+      await axios.post("/api/seller/logout");
+
+      // CLEAR STORAGE
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("isSeller");
+
+      // RESET STATES
+      setUser(null);
+      setIsSeller(false);
+      setCartItems({});
+
+      toast.success("Logout successful");
+
+      // REDIRECT HOME
+      navigate("/");
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
   };
 
   // =========================
@@ -193,16 +224,9 @@ const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const updateCart = async () => {
       try {
-        const { data } = await axios.post(
-          "/api/cart/update",
-          {
-            cartItems,
-          }
-        );
-
-        if (!data.success) {
-          toast.error(data.message);
-        }
+        await axios.post("/api/cart/update", {
+          cartItems,
+        });
       } catch (error) {
         console.log(error.message);
       }
@@ -256,6 +280,9 @@ const AuthContextProvider = ({ children }) => {
 
     fetchProducts,
     fetchUser,
+    fetchSeller,
+
+    logout,
   };
 
   return (

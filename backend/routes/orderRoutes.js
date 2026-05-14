@@ -7,6 +7,7 @@ import { getAllOrders,
      updateOrderStatus,
      assignDeliveryBoy,
      returnOrder,
+     rateOrder,
      approveReturn
     } from "../controllers/orderController.js";
 import {authSeller} from "../middleware/authSeller.js";
@@ -19,5 +20,6 @@ router.get("/seller",authSeller,getAllOrders);
 router.post("/update-status", authSeller, updateOrderStatus);
 router.post("/assign-delivery-boy", authSeller, assignDeliveryBoy);
 router.post("/return", authUser, returnOrder);
+router.post("/rate", authUser, rateOrder);
 router.post("/approve-return", authSeller, approveReturn);  
 export default router;

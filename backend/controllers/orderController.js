@@ -311,6 +311,63 @@ export const returnOrder = async (req, res) => {
 };
 
 /* =========================
+   RATE ORDER
+========================= */
+export const rateOrder = async (req, res) => {
+  try {
+    const { orderId, rating, review } = req.body;
+
+    if (!orderId || !rating) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID and rating are required",
+      });
+    }
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.userId?.toString() !== userId?.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to rate this order",
+      });
+    }
+
+    if (order.status?.toLowerCase() !== "delivered") {
+      return res.status(400).json({
+        success: false,
+        message: "Only delivered orders can be rated",
+      });
+    }
+
+    order.rating = Number(rating);
+    if (review !== undefined) {
+      order.review = review;
+    }
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Order rated successfully",
+      order,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/* =========================
    APPROVE RETURN (RESTOCK FIX)
 ========================= */
 export const approveReturn = async (req, res) => {

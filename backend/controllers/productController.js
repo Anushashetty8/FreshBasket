@@ -15,11 +15,16 @@ export const addProduct = async (req, res) => {
 
     const image = req.files?.map((file) => file.filename);
 
+    const descriptionArray = description
+      ? description.split('\n').filter(line => line.trim() !== '')
+      : [];
+
     if (
       !name ||
       !price ||
       !offerPrice ||
-      !description ||
+      !category ||
+      !descriptionArray.length ||
       !image ||
       image.length === 0
     ) {
@@ -31,7 +36,7 @@ export const addProduct = async (req, res) => {
 
     await Product.create({
       name,
-      description,
+      description: descriptionArray,
       price,
       offerPrice,
       category,
@@ -164,9 +169,13 @@ export const updateProduct = async (req, res) => {
       expiryDate,
     } = req.body;
 
+    const descriptionArray = description
+      ? description.split('\n').filter(line => line.trim() !== '')
+      : [];
+
     let updatedData = {
       name,
-      description,
+      description: descriptionArray,
       price,
       offerPrice,
       category,

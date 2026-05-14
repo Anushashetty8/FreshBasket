@@ -74,6 +74,57 @@ const MyOrders = () => {
     }
   };
 
+  // ================= RATING =================
+  const [ratingInputs, setRatingInputs] = useState({});
+  const [reviewInputs, setReviewInputs] = useState({});
+  const [ratingLoading, setRatingLoading] = useState({});
+
+  const handleRatingChange = (orderId, value) => {
+    setRatingInputs((prev) => ({
+      ...prev,
+      [orderId]: value,
+    }));
+  };
+
+  const handleReviewChange = (orderId, value) => {
+    setReviewInputs((prev) => ({
+      ...prev,
+      [orderId]: value,
+    }));
+  };
+
+  const submitRating = async (orderId) => {
+    const rating = ratingInputs[orderId] || 0;
+    const review = reviewInputs[orderId] || "";
+
+    if (!rating) {
+      toast.error("Please select a rating before submitting.");
+      return;
+    }
+
+    try {
+      setRatingLoading((prev) => ({ ...prev, [orderId]: true }));
+      const { data } = await axios.post("/api/order/rate", {
+        orderId,
+        rating,
+        review,
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        setRatingInputs((prev) => ({ ...prev, [orderId]: 0 }));
+        setReviewInputs((prev) => ({ ...prev, [orderId]: "" }));
+        fetchOrders();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setRatingLoading((prev) => ({ ...prev, [orderId]: false }));
+    }
+  };
+
   // ================= LOAD =================
   useEffect(() => {
     if (user) fetchOrders();
@@ -437,22 +488,81 @@ const MyOrders = () => {
                             {/* RATING */}
                             {status === "delivered" && (
                               <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
+                                {order.rating ? (
+                                  <div className="space-y-3 text-center">
+                                    <div className="flex gap-1 justify-center">
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                          key={star}
+                                          size={22}
+                                          className={
+                                            star <= order.rating
+                                              ? "fill-yellow-400 text-yellow-400"
+                                              : "text-gray-300"
+                                          }
+                                        />
+                                      ))}
+                                    </div>
+                                    <p className="font-semibold text-gray-800">
+                                      You rated this order {order.rating} / 5
+                                    </p>
+                                    {order.review && (
+                                      <p className="text-sm text-gray-700">
+                                        "{order.review}"
+                                      </p>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="space-y-4 text-center">
+                                    <div className="flex gap-1 justify-center">
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                          type="button"
+                                          key={star}
+                                          onClick={() =>
+                                            handleRatingChange(
+                                              order._id,
+                                              star
+                                            )
+                                          }
+                                          className="rounded-full p-1 transition-transform hover:scale-110"
+                                        >
+                                          <Star
+                                            size={24}
+                                            className={
+                                              ratingInputs[order._id] >= star
+                                                ? "fill-yellow-400 text-yellow-400"
+                                                : "text-gray-300"
+                                            }
+                                          />
+                                        </button>
+                                      ))}
+                                    </div>
 
-                                <div className="flex gap-1 justify-center">
-
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                      key={star}
-                                      size={22}
-                                      className="fill-yellow-400 text-yellow-400"
+                                    <textarea
+                                      rows={3}
+                                      value={reviewInputs[order._id] || ""}
+                                      onChange={(e) =>
+                                        handleReviewChange(
+                                          order._id,
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="Leave delivery feedback..."
+                                      className="w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-green-500"
                                     />
-                                  ))}
 
-                                </div>
-
-                                <p className="text-center text-sm mt-2 text-gray-600">
-                                  Thanks for shopping ❤️
-                                </p>
+                                    <button
+                                      onClick={() => submitRating(order._id)}
+                                      disabled={ratingLoading[order._id]}
+                                      className="mx-auto bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-2xl font-semibold shadow-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {ratingLoading[order._id]
+                                        ? "Submitting..."
+                                        : "Submit Feedback"}
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
 

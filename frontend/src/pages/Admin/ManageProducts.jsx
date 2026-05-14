@@ -25,7 +25,7 @@ const ManageProducts = () => {
     setEditId(product._id);
 
     setName(product.name || "");
-    setDescription(product.description || "");
+    setDescription(product.description?.join('\n') || "");
     setPrice(product.price || "");
     setOfferPrice(product.offerPrice || "");
     setCategory(product.category || "");
@@ -58,7 +58,7 @@ const ManageProducts = () => {
       // MULTIPLE IMAGES
       for (let i = 0; i < files.length; i++) {
         if (files[i]) {
-          formData.append("images", files[i]);
+          formData.append("image", files[i]);
         }
       }
 

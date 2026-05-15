@@ -9,6 +9,7 @@ const ManageOrders = () => {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [approvingOrderId, setApprovingOrderId] = useState(null);
   const [error, setError] = useState("");
+
   const { axios, products } = useContext(AuthContext);
 
   const totalProducts = products.length;
@@ -16,23 +17,17 @@ const ManageOrders = () => {
     (product) =>
       product.inStock === false || (product.stock ?? 0) <= 0
   ).length;
+
   const totalSales = orders
-    .filter((order) =>
-      order.status?.toLowerCase() === "delivered"
-    )
+    .filter((order) => order.status?.toLowerCase() === "delivered")
     .reduce((sum, order) => sum + (order.amount || 0), 0);
 
-  // Fetch Orders
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      setError("");
       const { data } = await axios.get("/api/order/seller");
-      if (data.success) {
-        setOrders(data.orders);
-      } else {
-        setError(data.message || "Failed to load orders");
-      }
+      if (data.success) setOrders(data.orders);
+      else setError(data.message);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -40,19 +35,15 @@ const ManageOrders = () => {
     }
   };
 
-  // Fetch Delivery Boys
   const fetchDeliveryBoys = async () => {
     try {
       const { data } = await axios.get("/api/delivery-boy");
-      if (data.success) {
-        setDeliveryBoys(data.boys);
-      }
+      if (data.success) setDeliveryBoys(data.boys);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // Update Order Status
   const updateStatus = async (orderId, status) => {
     try {
       const { data } = await axios.post("/api/order/update-status", {
@@ -61,29 +52,25 @@ const ManageOrders = () => {
       });
 
       if (data.success) {
-        toast.success("Order status updated");
+        toast.success("Status updated");
         fetchOrders();
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  // Approve Return Request
   const approveReturn = async (orderId) => {
     try {
       setApprovingOrderId(orderId);
+
       const { data } = await axios.post("/api/order/approve-return", {
         orderId,
       });
 
       if (data.success) {
-        toast.success(data.message || "Return approved successfully");
+        toast.success("Return approved");
         fetchOrders();
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -92,22 +79,16 @@ const ManageOrders = () => {
     }
   };
 
-  // Assign Delivery Boy
   const assignDeliveryBoy = async (orderId, deliveryBoyId) => {
     try {
-      const { data } = await axios.post(
-        "/api/order/assign-delivery-boy",
-        {
-          orderId,
-          deliveryBoyId,
-        }
-      );
+      const { data } = await axios.post("/api/order/assign-delivery-boy", {
+        orderId,
+        deliveryBoyId,
+      });
 
       if (data.success) {
-        toast.success("Delivery boy assigned");
+        toast.success("Assigned successfully");
         fetchOrders();
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -124,177 +105,154 @@ const ManageOrders = () => {
   );
 
   return (
-    <div className="md:p-10 p-4 space-y-6">
+    <div className="md:p-10 p-4 space-y-6 bg-gradient-to-br from-indigo-50 via-sky-50 to-pink-50 min-h-screen">
+
+      {/* STATS */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Total Products</p>
-          <p className="text-3xl font-semibold text-gray-900">{totalProducts}</p>
+
+        <div className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white p-5 shadow-lg">
+          <p className="text-sm opacity-90">Total Products</p>
+          <p className="text-3xl font-bold">{totalProducts}</p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Out of Stock</p>
-          <p className="text-3xl font-semibold text-red-600">{outOfStockProducts}</p>
+        <div className="rounded-lg bg-gradient-to-r from-red-500 to-pink-500 text-white p-5 shadow-lg">
+          <p className="text-sm opacity-90">Out of Stock</p>
+          <p className="text-3xl font-bold">{outOfStockProducts}</p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Total Sales</p>
-          <p className="text-3xl font-semibold text-green-600">
+        <div className="rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white p-5 shadow-lg">
+          <p className="text-sm opacity-90">Total Sales</p>
+          <p className="text-3xl font-bold">
             ₹{totalSales.toLocaleString("en-IN")}
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium">Return Requests</h2>
-          {loadingOrders && (
-            <span className="text-sm text-gray-500">Loading return requests...</span>
-          )}
-        </div>
-
-        {error && (
-          <div className="rounded bg-red-50 border border-red-200 text-red-700 px-4 py-3">
-            {error}
-          </div>
-        )}
+      {/* RETURN REQUESTS */}
+      <div>
+        <h2 className="text-xl font-bold text-indigo-700 mb-3">
+          Return Requests
+        </h2>
 
         {returnRequests.length === 0 ? (
-          <div className="rounded bg-gray-50 border border-gray-200 p-4 text-gray-600">
-            No return requests at the moment.
+          <div className="bg-white border p-4 rounded-lg text-gray-600">
+            No return requests
           </div>
         ) : (
-          returnRequests.map((order) => {
-            const items = order?.items || [];
-            const userName = order?.userId?.name || order?.userId?.email || "Customer";
+          returnRequests.map((order) => (
+            <div
+              key={order._id}
+              className="bg-orange-50 border border-orange-200 p-4 rounded-lg mb-4 shadow-sm"
+            >
+              <div className="flex justify-between flex-wrap gap-3">
+                <p className="font-semibold">
+                  {order?.userId?.name || "Customer"}
+                </p>
 
-            return (
-              <div
-                key={order._id}
-                className="rounded-md border border-gray-300 bg-white p-4 shadow-sm"
-              >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Customer</p>
-                    <p className="font-medium">{userName}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total Amount</p>
-                    <p className="font-medium">₹{(order?.amount || 0).toLocaleString("en-IN")}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Order Status</p>
-                    <p className="font-semibold text-orange-600">{order.status}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => approveReturn(order._id)}
-                    disabled={approvingOrderId === order._id}
-                    className="rounded bg-indigo-500 px-4 py-2 text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-gray-400"
-                  >
-                    {approvingOrderId === order._id ? "Approving..." : "Approve Return"}
-                  </button>
-                </div>
+                <p className="text-orange-600 font-bold">
+                  ₹{order.amount}
+                </p>
 
-                <div className="mt-4 space-y-2">
-                  <p className="text-sm text-gray-500">Products</p>
-                  {items.map((item) => (
-                    <div key={item._id || item.product?._id} className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-3">
-                      <p className="text-sm text-gray-800">
-                        {item?.product?.name || "Product"}
-                      </p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-red-500 font-semibold">
+                  {order.status}
+                </p>
+
+                <button
+                  onClick={() => approveReturn(order._id)}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2 rounded hover:scale-105 transition"
+                >
+                  {approvingOrderId === order._id
+                    ? "Approving..."
+                    : "Approve Return"}
+                </button>
               </div>
-            );
-          })
+            </div>
+          ))
         )}
       </div>
 
-      <h2 className="text-lg font-medium">Orders List</h2>
+      {/* ORDERS LIST */}
+      <h2 className="text-xl font-bold text-gray-800">Orders List</h2>
 
-      {orders.map((order, index) => {
+      {orders.map((order) => {
         const items = order?.items || [];
         const firstImage = items[0]?.product?.image?.[0];
-        const imgSrc = firstImage
-          ? `http://localhost:5000/images/${firstImage}`
-          : assets.box_icon;
 
         return (
           <div
-            key={index}
-            className="flex flex-col md:grid md:grid-cols-[2fr_1fr_1fr_1fr] md:items-center gap-5 p-5 max-w-4xl rounded-md border border-gray-300 text-gray-800"
+            key={order._id}
+            className="bg-white border-l-4 border-indigo-500 rounded-2xl shadow-md p-5 mb-5"
           >
-            {/* Product Section */}
-            <div className="flex gap-5">
+
+            {/* PRODUCTS */}
+            <div className="flex gap-4">
               <img
-                className="w-12 h-12 object-cover opacity-60"
-                src={imgSrc}
-                alt="boxIcon"
+                src={
+                  firstImage
+                    ? `http://localhost:5000/images/${firstImage}`
+                    : assets.box_icon
+                }
+                className="w-14 h-14 rounded object-cover border"
               />
 
               <div>
-                {items.map((item, itemIdx) => (
-                  <p key={itemIdx} className="font-medium">
-                    {item?.product?.name || "Product"}
-                    {item?.quantity > 1 && (
-                      <span className="text-indigo-500">
-                        {" "}
-                        x {item.quantity}
-                      </span>
-                    )}
+                {items.map((item, i) => (
+                  <p key={i} className="font-medium">
+                    {item.product?.name}{" "}
+                    <span className="text-indigo-500">
+                      x{item.quantity}
+                    </span>
                   </p>
                 ))}
               </div>
             </div>
 
-            {/* Address */}
-            <div className="text-sm">
-              <p className="font-medium mb-1">
-                {order?.address?.firstName} {order?.address?.lastName}
-              </p>
-              <p>
-                {order?.address?.street}, {order?.address?.city},{" "}
-                {order?.address?.state}, {order?.address?.zipcode},{" "}
-                {order?.address?.country}
-              </p>
+            {/* DETAILS */}
+            <div className="grid md:grid-cols-3 gap-4 mt-4 text-sm">
+
+              <div>
+                <p className="text-gray-500">Customer</p>
+                <p className="font-semibold">
+                  {order?.userId?.name}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-500">Amount</p>
+                <p className="text-emerald-600 font-bold text-lg">
+                  ₹{order.amount}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-500">Payment</p>
+                <p>{order.isPaid ? "Paid" : "Pending"}</p>
+              </div>
             </div>
 
-            {/* Amount */}
-            <p className="font-medium text-base my-auto text-black/70">
-              ₹{(order?.amount || 0).toLocaleString("en-IN")}
-            </p>
+            {/* CONTROLS */}
+            <div className="mt-4 grid md:grid-cols-3 gap-3">
 
-            {/* Controls */}
-            <div className="flex flex-col text-sm">
-              <p>Method: {order?.paymentType || "N/A"}</p>
-              <p>Date: {order?.orderDate || "N/A"}</p>
-              <p>Payment: {order?.isPaid ? "Paid" : "Pending"}</p>
-
-              {/* Status Dropdown */}
               <select
+                className="border border-indigo-300 bg-indigo-50 p-2 rounded-lg"
                 value={order.status}
                 onChange={(e) =>
                   updateStatus(order._id, e.target.value)
                 }
-                className="border mt-2 p-1 rounded"
               >
-                <option value="Order Placed">Order Placed</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
+                <option>Order Placed</option>
+                <option>Shipped</option>
+                <option>Delivered</option>
               </select>
 
-              {/* ✅ FIXED DELIVERY BOY DROPDOWN */}
               <select
-                value={order?.deliveryBoy?._id || ""}
+                className="border border-green-300 bg-green-50 p-2 rounded-lg"
                 onChange={(e) =>
                   assignDeliveryBoy(order._id, e.target.value)
                 }
-                className="border mt-2 p-1 rounded"
+                value={order?.deliveryBoy?._id || ""}
               >
                 <option value="">Assign Delivery Boy</option>
-
                 {deliveryBoys.map((boy) => (
                   <option key={boy._id} value={boy._id}>
                     {boy.name}
@@ -302,12 +260,12 @@ const ManageOrders = () => {
                 ))}
               </select>
 
-              {/* Show assigned delivery boy */}
-              <p className="text-xs text-green-600 mt-1">
-                Assigned:{" "}
-                {order?.deliveryBoy?.name || "Not assigned"}
-              </p>
+              <div className="text-green-600 font-medium">
+                {order?.deliveryBoy?.name || "Not Assigned"}
+              </div>
+
             </div>
+
           </div>
         );
       })}

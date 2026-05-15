@@ -63,6 +63,42 @@ const ProductCard = ({ product }) => {
     }
   }
 
+  // ================= IMAGE FIX =================
+  const getProductImage = () => {
+
+    // CASE 1 => image array
+    if (
+      Array.isArray(product.image) &&
+      product.image.length > 0
+    ) {
+
+      const img = product.image[0];
+
+      // cloudinary/full url
+      if (img.startsWith("http")) {
+        return img;
+      }
+
+      // local upload
+      return `${import.meta.env.VITE_BACKEND_URL}/images/${img}`;
+    }
+
+    // CASE 2 => image string
+    if (typeof product.image === "string") {
+
+      // cloudinary/full url
+      if (product.image.startsWith("http")) {
+        return product.image;
+      }
+
+      // local upload
+      return `${import.meta.env.VITE_BACKEND_URL}/images/${product.image}`;
+    }
+
+    // fallback image
+    return "https://placehold.co/300x300?text=No+Image";
+  };
+
   return (
     <div
       className="
@@ -76,12 +112,12 @@ const ProductCard = ({ product }) => {
       duration-500
       border
       border-gray-100
-
       h-[560px]
       flex
       flex-col
       "
     >
+
       {/* CLICKABLE AREA */}
       <div
         className="flex flex-col h-full cursor-pointer"
@@ -91,6 +127,7 @@ const ProductCard = ({ product }) => {
           )
         }
       >
+
         {/* IMAGE SECTION */}
         <div
           className="
@@ -105,6 +142,7 @@ const ProductCard = ({ product }) => {
           overflow-hidden
           "
         >
+
           {/* SALE BADGE */}
           <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
             SALE
@@ -116,21 +154,26 @@ const ProductCard = ({ product }) => {
             hover:scale-110
             transition
             duration-500
-
             w-[180px]
             h-[180px]
             object-contain
             "
-            src={`${import.meta.env.VITE_BACKEND_URL}/images/${product.image?.[0]}`}
+            src={getProductImage()}
             alt={product.name}
+            onError={(e) => {
+              e.target.src =
+                "https://placehold.co/300x300?text=No+Image";
+            }}
           />
+
         </div>
 
         {/* CONTENT */}
         <div className="flex flex-col justify-between flex-1 p-5">
-          
+
           {/* TOP CONTENT */}
           <div>
+
             {/* CATEGORY */}
             <p className="text-sm text-indigo-500 font-semibold uppercase tracking-wide">
               {product.category}
@@ -143,7 +186,6 @@ const ProductCard = ({ product }) => {
               font-bold
               text-gray-800
               mt-2
-
               h-[56px]
               overflow-hidden
               "
@@ -153,6 +195,7 @@ const ProductCard = ({ product }) => {
 
             {/* STOCK */}
             <div className="mt-3 h-[30px]">
+
               {(product.stock ?? 0) > 0 ? (
                 <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">
                   {product.stock} Items Left
@@ -162,15 +205,16 @@ const ProductCard = ({ product }) => {
                   Out of Stock
                 </span>
               )}
+
             </div>
 
             {/* EXPIRY */}
             <div className="mt-3 h-[50px]">
+
               {product.expiryDate ? (
                 <>
                   <p className="text-xs text-gray-500">
-                    Expiry:
-                    {" "}
+                    Expiry:{" "}
                     {new Date(product.expiryDate).toLocaleDateString(
                       "en-IN"
                     )}
@@ -185,10 +229,12 @@ const ProductCard = ({ product }) => {
               ) : (
                 <div className="h-[40px]" />
               )}
+
             </div>
 
             {/* RATING */}
             <div className="flex items-center gap-1 mt-3 h-[24px]">
+
               {Array(5)
                 .fill("")
                 .map((_, i) => (
@@ -207,16 +253,20 @@ const ProductCard = ({ product }) => {
               <span className="text-sm text-gray-500 ml-1">
                 4.0
               </span>
+
             </div>
+
           </div>
 
           {/* BOTTOM */}
           <div className="mt-6">
+
             {/* PRICE + CART */}
             <div className="flex items-center justify-between">
-              
+
               {/* PRICE */}
               <div>
+
                 <p className="text-2xl font-extrabold text-indigo-600">
                   ₹{product.offerPrice?.toLocaleString("en-IN")}
                 </p>
@@ -224,16 +274,18 @@ const ProductCard = ({ product }) => {
                 <p className="text-sm text-gray-400 line-through">
                   ₹{product.price?.toLocaleString("en-IN")}
                 </p>
+
               </div>
 
               {/* CART */}
-              <div
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div onClick={(e) => e.stopPropagation()}>
+
                 {(product.stock ?? 0) === 0 ? (
+
                   <button className="bg-gray-300 text-gray-500 px-5 py-2 rounded-xl cursor-not-allowed w-[110px]">
                     Out
                   </button>
+
                 ) : !cartItems?.[product._id] ? (
 
                   <button
@@ -266,6 +318,7 @@ const ProductCard = ({ product }) => {
                     rounded-xl
                     "
                   >
+
                     <button
                       onClick={() =>
                         removeFromCart(product._id)
@@ -296,13 +349,19 @@ const ProductCard = ({ product }) => {
                     >
                       +
                     </button>
+
                   </div>
+
                 )}
+
               </div>
+
             </div>
+
           </div>
 
         </div>
+
       </div>
     </div>
   );

@@ -315,6 +315,7 @@ export const returnOrder = async (req, res) => {
 ========================= */
 export const rateOrder = async (req, res) => {
   try {
+    const userId = req.user;
     const { orderId, rating, review } = req.body;
 
     if (!orderId || !rating) {

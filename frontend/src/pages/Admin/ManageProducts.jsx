@@ -2,11 +2,19 @@ import { useContext, useState } from "react";
 import { assets, categories } from "../../assets/assets";
 import { AuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import {
+  Package,
+  ImagePlus,
+  FileText,
+  Layers,
+  DollarSign,
+  Percent,
+  Calendar,
+} from "lucide-react";
 
 const ManageProducts = () => {
   const { axios } = useContext(AuthContext);
 
-  // STATES
   const [files, setFiles] = useState([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -16,31 +24,6 @@ const ManageProducts = () => {
   const [taxRate, setTaxRate] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
 
-  const [isEdit, setIsEdit] = useState(false);
-  const [editId, setEditId] = useState(null);
-
-  // EDIT FUNCTION
-  const handleEdit = (product) => {
-    setIsEdit(true);
-    setEditId(product._id);
-
-    setName(product.name || "");
-    setDescription(product.description?.join('\n') || "");
-    setPrice(product.price || "");
-    setOfferPrice(product.offerPrice || "");
-    setCategory(product.category || "");
-    setTaxRate(product.taxRate || "");
-
-    setExpiryDate(
-      product.expiryDate
-        ? product.expiryDate.split("T")[0]
-        : ""
-    );
-
-    setFiles([]);
-  };
-
-  // SUBMIT FUNCTION
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -55,37 +38,18 @@ const ManageProducts = () => {
       formData.append("taxRate", taxRate);
       formData.append("expiryDate", expiryDate);
 
-      // MULTIPLE IMAGES
       for (let i = 0; i < files.length; i++) {
-        if (files[i]) {
-          formData.append("image", files[i]);
-        }
+        if (files[i]) formData.append("image", files[i]);
       }
 
-      let response;
-
-      // UPDATE PRODUCT
-      if (isEdit) {
-        response = await axios.put(
-          `/api/product/update/${editId}`,
-          formData
-        );
-      }
-
-      // ADD PRODUCT
-      else {
-        response = await axios.post(
-          "/api/product/add-product",
-          formData
-        );
-      }
-
-      const { data } = response;
+      const { data } = await axios.post(
+        "/api/product/add-product",
+        formData
+      );
 
       if (data.success) {
         toast.success(data.message);
 
-        // RESET FORM
         setName("");
         setDescription("");
         setPrice("");
@@ -94,211 +58,199 @@ const ManageProducts = () => {
         setTaxRate("");
         setExpiryDate("");
         setFiles([]);
-
-        setIsEdit(false);
-        setEditId(null);
       } else {
         toast.error(data.message);
       }
-
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || error.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
   return (
-    <div className="py-10 flex flex-col justify-between bg-white">
-      <form
-        onSubmit={handleSubmit}
-        className="md:p-10 p-4 space-y-5 max-w-lg"
-      >
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 md:p-10">
 
-        {/* PRODUCT IMAGES */}
-        <div>
-          <p className="text-base font-medium">
-            Product Images
-          </p>
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
 
-          <div className="flex flex-wrap items-center gap-3 mt-2">
-            {Array(4)
-              .fill("")
-              .map((_, index) => (
-                <label
-                  key={index}
-                  htmlFor={`image${index}`}
-                >
+        {/* ================= LEFT FORM ================= */}
+        <form
+          onSubmit={handleSubmit}
+          className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6 md:p-10 space-y-10"
+        >
+
+          {/* HEADER */}
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-800 flex items-center gap-3">
+              <Package className="text-indigo-600" size={34} />
+              Product Builder
+            </h1>
+            <p className="text-gray-500 mt-2">
+              Create a new product listing for FreshBasket Admin store
+            </p>
+          </div>
+
+          {/* STEP 1 - IMAGES */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <ImagePlus size={18} /> Upload Images
+            </h2>
+
+            <div className="grid grid-cols-4 gap-3">
+              {Array(4).fill("").map((_, i) => (
+                <label key={i} className="cursor-pointer">
                   <input
                     type="file"
-                    accept="image/*"
                     hidden
-                    id={`image${index}`}
+                    accept="image/*"
                     onChange={(e) => {
-                      const updatedFiles = [...files];
-                      updatedFiles[index] =
-                        e.target.files[0];
-                      setFiles(updatedFiles);
+                      const updated = [...files];
+                      updated[i] = e.target.files[0];
+                      setFiles(updated);
                     }}
                   />
 
-                  <img
-                    className="w-24 h-24 object-cover border cursor-pointer rounded"
-                    src={
-                      files[index]
-                        ? URL.createObjectURL(files[index])
-                        : assets.upload_area
-                    }
-                    alt="upload"
-                  />
+                  <div className="aspect-square rounded-2xl border-2 border-dashed hover:border-indigo-500 flex items-center justify-center overflow-hidden bg-gray-50">
+                    <img
+                      src={
+                        files[i]
+                          ? URL.createObjectURL(files[i])
+                          : assets.upload_area
+                      }
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 </label>
               ))}
-          </div>
-        </div>
+            </div>
+          </section>
 
-        {/* PRODUCT NAME */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium">
-            Product Name
-          </label>
+          {/* STEP 2 - BASIC INFO */}
+          <section className="grid md:grid-cols-2 gap-6">
 
-          <input
-            type="text"
-            value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
-            placeholder="Type here"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-            required
-          />
-        </div>
+            <div>
+              <label className="font-medium flex items-center gap-2">
+                <FileText size={16} /> Product Name
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full mt-2 p-3 rounded-xl border focus:border-indigo-500 outline-none"
+              />
+            </div>
 
-        {/* DESCRIPTION */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium">
-            Product Description
-          </label>
-
-          <textarea
-            rows={4}
-            value={description}
-            onChange={(e) =>
-              setDescription(e.target.value)
-            }
-            placeholder="Type here"
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
-          />
-        </div>
-
-        {/* CATEGORY */}
-        <div className="w-full flex flex-col gap-1">
-          <label className="text-base font-medium">
-            Category
-          </label>
-
-          <select
-            value={category}
-            onChange={(e) =>
-              setCategory(e.target.value)
-            }
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-            required
-          >
-            <option value="">
-              Select Category
-            </option>
-
-            {categories.map((cat, index) => (
-              <option
-                key={index}
-                value={cat.path}
+            <div>
+              <label className="font-medium flex items-center gap-2">
+                <Layers size={16} /> Category
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full mt-2 p-3 rounded-xl border"
               >
-                {cat.path}
-              </option>
-            ))}
-          </select>
-        </div>
+                <option value="">Select</option>
+                {categories.map((c, i) => (
+                  <option key={i} value={c.path}>
+                    {c.path}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* PRICE SECTION */}
-        <div className="flex items-center gap-5 flex-wrap">
+          </section>
 
-          {/* TAX */}
-          <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium">
-              Tax (%)
+          {/* STEP 3 - DESCRIPTION */}
+          <section>
+            <label className="font-medium">Description</label>
+            <textarea
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full mt-2 p-3 rounded-xl border resize-none"
+            />
+          </section>
+
+          {/* STEP 4 - PRICING GRID */}
+          <section className="grid md:grid-cols-3 gap-5">
+
+            <div>
+              <label className="flex items-center gap-2 font-medium">
+                <Percent size={16} /> Tax
+              </label>
+              <input
+                type="number"
+                value={taxRate}
+                onChange={(e) => setTaxRate(e.target.value)}
+                className="w-full mt-2 p-3 rounded-xl border"
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 font-medium">
+                <DollarSign size={16} /> Price
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full mt-2 p-3 rounded-xl border"
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 font-medium">
+                <DollarSign size={16} /> Offer
+              </label>
+              <input
+                type="number"
+                value={offerPrice}
+                onChange={(e) => setOfferPrice(e.target.value)}
+                className="w-full mt-2 p-3 rounded-xl border"
+              />
+            </div>
+
+          </section>
+
+          {/* STEP 5 */}
+          <section>
+            <label className="flex items-center gap-2 font-medium">
+              <Calendar size={16} /> Expiry Date
             </label>
 
             <input
-              type="number"
-              value={taxRate}
-              onChange={(e) =>
-                setTaxRate(e.target.value)
-              }
-              placeholder="5"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              required
+              type="date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              className="w-full mt-2 p-3 rounded-xl border"
             />
+          </section>
+
+        </form>
+
+        {/* ================= RIGHT SIDE PREVIEW ================= */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 h-fit sticky top-6">
+
+          <h2 className="text-2xl font-bold mb-4">Live Preview</h2>
+
+          <div className="space-y-3 text-gray-700">
+
+            <p><b>Name:</b> {name || "Product Name"}</p>
+            <p><b>Category:</b> {category || "Not selected"}</p>
+            <p><b>Price:</b> ₹{price || 0}</p>
+            <p><b>Offer:</b> ₹{offerPrice || 0}</p>
+            <p><b>Tax:</b> {taxRate || 0}%</p>
+
           </div>
 
-          {/* PRICE */}
-          <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium">
-              Product Price
-            </label>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold hover:scale-[1.02] transition"
+          >
+            PUBLISH PRODUCT
+          </button>
 
-            <input
-              type="number"
-              value={price}
-              onChange={(e) =>
-                setPrice(e.target.value)
-              }
-              placeholder="0"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              required
-            />
-          </div>
-
-          {/* OFFER PRICE */}
-          <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium">
-              Offer Price
-            </label>
-
-            <input
-              type="number"
-              value={offerPrice}
-              onChange={(e) =>
-                setOfferPrice(e.target.value)
-              }
-              placeholder="0"
-              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              required
-            />
-          </div>
         </div>
 
-        {/* EXPIRY DATE */}
-        <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium">
-            Expiry Date
-          </label>
-
-          <input
-            type="date"
-            value={expiryDate}
-            onChange={(e) =>
-              setExpiryDate(e.target.value)
-            }
-            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-          />
-        </div>
-
-        {/* BUTTON */}
-        <button className="px-8 py-2.5 bg-indigo-500 hover:bg-indigo-600 transition text-white font-medium rounded">
-          {isEdit ? "UPDATE" : "ADD"}
-        </button>
-
-      </form>
+      </div>
     </div>
   );
 };
